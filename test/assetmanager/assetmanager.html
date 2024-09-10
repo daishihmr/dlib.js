@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <script src="../../dist/dlib.js"></script>
+  <script>
+    dlib.AssetLoaders.loaders.xml = async ({ url }) => {
+      const res = await fetch(url)
+      const str = await res.text()
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(str, 'application/xml')
+      return doc
+    }
+
+    window.onload = async () => {
+      const assetManager = new dlib.AssetManager()
+      try {
+        await assetManager.load({
+          image: {
+            'testImage': './sample.png'
+          },
+          text: {
+            'testText': './hello.txt'
+          },
+          json: {
+            'testJson': './daishi.json'
+          },
+          xml: {
+            'testXml': './daishi.xml'
+          }
+        })
+
+        console.log('ok')
+
+        const testImage = assetManager.assets.image['testImage']
+        document.body.appendChild(testImage)
+
+        const testText = assetManager.assets.text['testText']
+        console.log(testText)
+
+        const testJson = assetManager.assets.json['testJson']
+        console.log(testJson)
+
+        const testXml = assetManager.assets.xml['testXml']
+        console.log(testXml)
+      } catch (e) {
+        console.error('エラーだよ')
+        console.error(e)
+      }
+    }
+  </script>
+</body>
+</html>

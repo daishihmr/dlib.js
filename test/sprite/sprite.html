@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <canvas id="canvas" width="500" height="500"></canvas>
+  <script src="../../dist/dlib.js"></script>
+  <script>
+    window.onload = async () => {
+      const assetManager = new dlib.AssetManager()
+      await assetManager.load({
+        image: {
+          'tex': './sample-file.256x256.png'
+        }
+      })
+
+      const canvas = document.querySelector('#canvas')
+      const game = new dlib.Game()
+      const scene = new dlib.Scene(canvas)
+      scene.background = '#eee'
+      game.switchScene(scene)
+      game.start()
+
+      const sprite = new dlib.Sprite({ image: assetManager.get('image', 'tex') })
+      sprite.x = scene.width / 2
+      sprite.y = scene.height / 2
+      sprite.addChildTo(scene)
+      sprite.on('update', ({ game }) => {
+        sprite.rotation += game.deltaTime * 0.001
+        sprite.scaleX = Math.sin(game.time * 0.002)
+      })
+    }
+  </script>
+</body>
+</html>

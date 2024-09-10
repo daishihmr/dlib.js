@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <script src="../../dist/dlib.js"></script>
+  <script>
+    const game = new dlib.Game()
+    const scene = new dlib.Node()
+    scene.on('update', ({ game }) => {
+      console.log(`tick ${ game.deltaTime }`)
+    })
+    game.switchScene(scene)
+    setTimeout(() => {
+      game.start()
+    }, 1000)
+    setTimeout(() => {
+      game.stop()
+    }, 2000)
+  </script>
+</body>
+</html>

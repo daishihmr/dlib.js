@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <canvas id="canvas" width="500" height="500"></canvas>
+  <script src="../../dist/dlib.js"></script>
+  <script>
+    const canvas = document.querySelector('#canvas')
+    const game = new dlib.Game()
+    const scene = new dlib.Scene(canvas)
+    game.switchScene(scene)
+    game.start()
+
+    const bg = new dlib.DrawableNode()
+    bg.draw = ({ context }) => {
+      context.fillStyle = 'black'
+      context.fillRect(-250, -250, 500, 500)
+    }
+    bg.addChildTo(scene)
+
+    const box = new dlib.DrawableNode()
+    box.update = ({ game }) => {
+      const d = game.deltaTime
+      box.x += 0.01 * d
+      box.rotation += 0.001 * d
+      box.scaleX += 0.001 * d
+    }
+    box.draw = ({ context }) => {
+      context.fillStyle = 'gray'
+      context.fillRect(-30, -30, 60, 60)
+    }
+    box.x = 0
+    box.y = 0
+    box.addChildTo(scene)
+
+    const box2 = new dlib.DrawableNode()
+    box2.x = 10
+    box2.y = 10
+    box2.draw = ({ context }) => {
+      context.fillStyle = 'red'
+      context.fillRect(-10, -10, 20, 20)
+    }
+    box2.addChildTo(box)
+  </script>
+</body>
+</html>
