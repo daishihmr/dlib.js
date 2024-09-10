@@ -10,5 +10,8 @@
   },
   "author": "",
   "license": "MIT",
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "rollup": "^4.21.2"
+  }
 }
