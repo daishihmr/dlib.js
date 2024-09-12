@@ -17,15 +17,15 @@
       })
 
       const canvas = document.querySelector('#canvas')
-      const game = new dlib.Game()
-      const scene = new dlib.Scene(canvas)
+      const game = new dlib.Game(canvas)
+      const scene = new dlib.Scene()
       scene.background = '#eee'
       game.switchScene(scene)
       game.start()
 
       const sprite = new dlib.Sprite({ image: assetManager.get('image', 'tex') })
-      sprite.x = scene.width / 2
-      sprite.y = scene.height / 2
+      sprite.x = game.width / 2
+      sprite.y = game.height / 2
       sprite.addChildTo(scene)
       sprite.on('update', ({ game }) => {
         sprite.rotation += game.deltaTime * 0.001

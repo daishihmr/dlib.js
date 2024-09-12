@@ -9,18 +9,21 @@
   <script src="../../dist/dlib.js"></script>
   <script>
     const canvas = document.querySelector('#canvas')
+    canvas.style.width = '700px'
+    canvas.style.height = '700px'
     const game = new dlib.Game(canvas)
+    game.background = 'black'
     const scene = new dlib.Node()
-    scene.on('update', ({ game }) => {
-      console.log(`tick ${ game.deltaTime }`)
-    })
     game.switchScene(scene)
-    setTimeout(() => {
-      game.start()
-    }, 1000)
-    setTimeout(() => {
-      game.stop()
-    }, 2000)
+    game.start()
+
+    scene.on('update', ({ mouse }) => {
+      // console.log(mouse.x, mouse.y)
+    })
+
+    game.on('mousedown', (e) => {
+      console.log(e.button, e.x, e.y)
+    })
   </script>
 </body>
 </html>

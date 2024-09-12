@@ -9,15 +9,15 @@
   <script src="../../dist/dlib.js"></script>
   <script>
     const canvas = document.querySelector('#canvas')
-    const game = new dlib.Game()
-    const scene = new dlib.Scene(canvas)
+    const game = new dlib.Game(canvas)
+    const scene = new dlib.Scene()
     game.switchScene(scene)
     game.start()
 
     const bg = new dlib.DrawableNode()
-    bg.draw = ({ context }) => {
-      context.fillStyle = 'black'
-      context.fillRect(-250, -250, 500, 500)
+    bg.draw = ({ game }) => {
+      game.context.fillStyle = 'black'
+      game.context.fillRect(0, 0, 500, 500)
     }
     bg.addChildTo(scene)
 
@@ -28,9 +28,9 @@
       box.rotation += 0.001 * d
       box.scaleX += 0.001 * d
     }
-    box.draw = ({ context }) => {
-      context.fillStyle = 'gray'
-      context.fillRect(-30, -30, 60, 60)
+    box.draw = ({ game }) => {
+      game.context.fillStyle = 'gray'
+      game.context.fillRect(-30, -30, 60, 60)
     }
     box.x = 0
     box.y = 0
@@ -39,9 +39,9 @@
     const box2 = new dlib.DrawableNode()
     box2.x = 10
     box2.y = 10
-    box2.draw = ({ context }) => {
-      context.fillStyle = 'red'
-      context.fillRect(-10, -10, 20, 20)
+    box2.draw = ({ game }) => {
+      game.context.fillStyle = 'red'
+      game.context.fillRect(-10, -10, 20, 20)
     }
     box2.addChildTo(box)
   </script>

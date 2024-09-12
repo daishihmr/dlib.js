@@ -6,13 +6,30 @@ export class Sprite extends DrawableNode {
     this.image = image
     this.sx = sx || 0
     this.sy = sy || 0
-    this.sw = sw || image.width
-    this.sh = sh || image.height
-    this.width = width || image.width || 100
-    this.height = height || image.height || 100
+    this.sw = sw || (image ? image.width : 0)
+    this.sh = sh || (image ? image.height : 0)
+    this.width = width || (image ? image.width : 100)
+    this.height = height || (image ? image.height : 100)
+    this.interactive = false
   }
 
-  draw ({ context }) {
-    context.drawImage(this.image, this.sx, this.sy, this.sw, this.sh, -this.width / 2, -this.height / 2, this.width, this.height)
+  draw ({ game }) {
+    if (this.image) {
+      game.context.drawImage(
+        this.image,
+        this.sx,
+        this.sy,
+        this.sw,
+        this.sh,
+        -this.width / 2,
+        -this.height / 2,
+        this.width,
+        this.height
+      )
+    }
+  }
+
+  hit (x, y) {
+
   }
 }

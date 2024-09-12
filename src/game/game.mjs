@@ -1,9 +1,41 @@
-export class Game {
-  constructor () {
+import { EventDispatcher } from './eventdispatcher.mjs'
+import { Mouse } from "./mouse.mjs"
+
+export class Game extends EventDispatcher {
+  constructor (canvas) {
+    super()
+
+    this.canvas = canvas
+    this.context = canvas.getContext('2d')
+    this.background = 'transparent'
+
+    this.mouse = new Mouse(canvas)
+
     this.currentScene = null
     this._running = false
     this.time = 0
     this.deltaTime = 0
+  }
+
+  get background () {
+    return this.canvas.style.backgroundColor
+  }
+  set background (value) {
+    this.canvas.style.backgroundColor = value
+  }
+
+  get width () {
+    return this.canvas.width
+  }
+  set width (value) {
+    this.canvas.width = value
+  }
+
+  get height () {
+    return this.canvas.height
+  }
+  set height (value) {
+    this.canvas.height = value
   }
 
   start () {
@@ -21,7 +53,19 @@ export class Game {
     if (this._running) {
       this.deltaTime = Date.now() - this.time
       this.time += this.deltaTime
-      if (this.currentScene) this.currentScene._update({ game: this })
+
+      this.context.clearRect(0, 0, this.width, this.height)
+
+      this.mouse.update(this)
+
+      if (this.currentScene) {
+        this.currentScene._update({
+          game: this,
+          canvas: this.canvas,
+          context: this.context,
+          mouse: this.mouse,
+        })
+      }
       requestAnimationFrame(() => this._tick())
     }
   }

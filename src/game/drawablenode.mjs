@@ -45,7 +45,7 @@ export class DrawableNode extends Node {
   }
 
   _draw (params) {
-    const context = params.context
+    const context = params.game.context
     context.save()
     context.translate(this.position[0], this.position[1])
     context.rotate(this.rotation)
@@ -57,5 +57,5 @@ export class DrawableNode extends Node {
     context.restore()
   }
 
-  draw ({ canvas, context }) {}
+  draw (params) {}
 }
