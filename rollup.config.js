@@ -5,6 +5,10 @@ export default {
 		file: 'dist/dlib.js',
 		format: 'iife',
     indent: '  ',
-    sourcemap: true
-	}
+    sourcemap: true,
+		globals: {
+			'gl-matrix': 'glMatrix'
+		}
+	},
+	external: ['gl-matrix']
 }

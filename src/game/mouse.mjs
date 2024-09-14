@@ -1,35 +1,72 @@
+import { vec2 } from "gl-matrix"
+
 export class Mouse {
   constructor (canvas) {
-    this.position = [0, 0]
-    this.down = [null, null, null, null, null]
-    this.up = [null, null, null, null, null]
+    this.position = vec2.create()
+    this.down = []
+    this.up = []
+    for (let i = 0; i < 10; i++) {
+      this.down.push({
+        position: vec2.create(),
+        flag: 0,
+      })
+      this.up.push({
+        position: vec2.create(),
+        flag: 0,
+      })
+    }
+
     canvas.addEventListener('mouseover', (e) => {
-      this.x = e.offsetX * canvas.width / canvas.offsetWidth
-      this.y = e.offsetY * canvas.height / canvas.offsetHeight
+      this.position.set([
+        e.offsetX * canvas.width / canvas.offsetWidth,
+        e.offsetY * canvas.height / canvas.offsetHeight,
+      ])
     })
     canvas.addEventListener('mousemove', (e) => {
-      this.x = e.offsetX * canvas.width / canvas.offsetWidth
-      this.y = e.offsetY * canvas.height / canvas.offsetHeight
+      this.position.set([
+        e.offsetX * canvas.width / canvas.offsetWidth,
+        e.offsetY * canvas.height / canvas.offsetHeight,
+      ])
     })
     canvas.addEventListener('mouseleave', (e) => {
-      this.x = e.offsetX * canvas.width / canvas.offsetWidth
-      this.y = e.offsetY * canvas.height / canvas.offsetHeight
+      this.position.set([
+        e.offsetX * canvas.width / canvas.offsetWidth,
+        e.offsetY * canvas.height / canvas.offsetHeight,
+      ])
     })
     canvas.addEventListener('mousedown', (e) => {
-      this.down[e.button] = {
-        x: e.offsetX * canvas.width / canvas.offsetWidth,
-        y: e.offsetY * canvas.height / canvas.offsetHeight,
-      }
+      const down = this.down[e.button]
+      down.position.set([
+        e.offsetX * canvas.width / canvas.offsetWidth,
+        e.offsetY * canvas.height / canvas.offsetHeight,
+      ])
+      down.flag = 1
+
+      this.up[e.button].flag = 0
     })
     canvas.addEventListener('mouseup', (e) => {
-      this.up[e.button] = {
-        x: e.offsetX * canvas.width / canvas.offsetWidth,
-        y: e.offsetY * canvas.height / canvas.offsetHeight,
-      }
+      const up = this.up[e.button]
+      up.position.set([
+        e.offsetX * canvas.width / canvas.offsetWidth,
+        e.offsetY * canvas.height / canvas.offsetHeight,
+      ])
+      up.flag = 1
+
+      this.down[e.button].flag = 0
     })
     canvas.addEventListener('wheel', (e) => {
 
     })
+  }
+
+  isDown (buttonIndex = 0) {
+    return this.down[buttonIndex].flag === 1
+  }
+  isPress (buttonIndex = 0) {
+    return this.down[buttonIndex].flag === 2
+  }
+  isUp (buttonIndex = 0) {
+    return this.up[buttonIndex].flag === 1
   }
 
   get x () {
@@ -48,15 +85,26 @@ export class Mouse {
 
   update (game) {
     this.down.forEach((down, button) => {
-      if (down) {
-        game.fire('mousedown', { button, x: down.x, y: down.y })
-        this.down[button] = null
+      if (down.flag === 1) {
+        game.fire('mousedown', { button, position: down.position })
       }
     })
     this.up.forEach((up, button) => {
-      if (up) {
-        game.fire('mouseup', { button, x: up.x, y: up.y })
-        this.up[button] = null
+      if (up.flag === 1) {
+        game.fire('mouseup', { button, position: up.position })
+      }
+    })
+  }
+
+  lateUpdate () {
+    this.down.forEach((down) => {
+      if (down.flag === 1) {
+        down.flag = 2
+      }
+    })
+    this.up.forEach((up) => {
+      if (up.flag === 1) {
+        up.flag = 2
       }
     })
   }

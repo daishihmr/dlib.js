@@ -1,3 +1,4 @@
+import { vec2 } from "gl-matrix"
 import { DrawableNode } from "../game/drawablenode.mjs"
 
 export class Sprite extends DrawableNode {
@@ -11,25 +12,39 @@ export class Sprite extends DrawableNode {
     this.width = width || (image ? image.width : 100)
     this.height = height || (image ? image.height : 100)
     this.interactive = false
+    this.origin = vec2.fromValues(0.5, 0.5)
   }
 
-  draw ({ game }) {
+  get originX () {
+    return this.origin[0]
+  }
+  set originX (value) {
+    this.origin[0] = value
+  }
+  get originY () {
+    return this.origin[1]
+  }
+  set originY (value) {
+    this.origin[1] = value
+  }
+
+  draw ({ context }) {
     if (this.image) {
-      game.context.drawImage(
+      context.drawImage(
         this.image,
         this.sx,
         this.sy,
         this.sw,
         this.sh,
-        -this.width / 2,
-        -this.height / 2,
+        this.width * this.origin[0] * -0.5,
+        this.height * this.origin[1] * -0.5,
         this.width,
         this.height
       )
     }
   }
 
-  hit (x, y) {
+  hit (point) {
 
   }
 }

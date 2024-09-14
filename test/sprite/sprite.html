@@ -6,6 +6,7 @@
 </head>
 <body>
   <canvas id="canvas" width="500" height="500"></canvas>
+  <script src="../gl-matrix.js"></script>
   <script src="../../dist/dlib.js"></script>
   <script>
     window.onload = async () => {
@@ -24,9 +25,9 @@
       game.start()
 
       const sprite = new dlib.Sprite({ image: assetManager.get('image', 'tex') })
-      sprite.x = game.width / 2
-      sprite.y = game.height / 2
-      sprite.addChildTo(scene)
+      sprite.x = 250
+      sprite.y = 250
+      scene.add(sprite)
       sprite.on('update', ({ game }) => {
         sprite.rotation += game.deltaTime * 0.001
         sprite.scaleX = Math.sin(game.time * 0.002)

@@ -1,4 +1,4 @@
-var dlib = (function (exports) {
+var dlib = (function (exports, glMatrix) {
   'use strict';
 
   class EventDispatcher {
@@ -57,83 +57,254 @@ var dlib = (function (exports) {
     }
   }
 
-  class Node extends EventDispatcher {
+  class Transform {
     constructor () {
-      super();
+      this._position = glMatrix.vec2.fromValues(0, 0);
+      this._rotation = 0;
+      this._scale = glMatrix.vec2.fromValues(1, 1);
+      this._dirty = true;
+      this._matrix = glMatrix.mat2d.create();
+      this._invMatrix = glMatrix.mat2d.create();
+
       this.parent = null;
       this.children = [];
     }
 
-    _update (params) {
-      this.update(params);
-      this.fire('update', params);
-      this.children.forEach((c) => {
-        c._update(params);
+    update (parentMatrix) {
+      glMatrix.mat2d.copy(this._matrix, parentMatrix);
+      glMatrix.mat2d.translate(this._matrix, this._matrix, this._position);
+      glMatrix.mat2d.rotate(this._matrix, this._matrix, this.rotation);
+      glMatrix.mat2d.scale(this._matrix, this._matrix, this._scale);
+      this.children.forEach((child) => {
+        child.update(this._matrix);
       });
     }
 
-    update (params) {}
-
-    addChild (node) {
-      this.children.push(node);
-      node.parent = this;
-    }
-
-    removeChild (node) {
-      const index = this.children.indexOf(node);
-      if (index < 0) {
-        return
+    get matrix () {
+      if (this.parent) {
+        glMatrix.mat2d.copy(this._matrix, this.parent._matrix);
+      } else {
+        glMatrix.mat2d.identity(this._matrix);
       }
-      this.children(index, 1);
-      node.parent = null;
+
+      glMatrix.mat2d.translate(this._matrix, this._matrix, this._position);
+      glMatrix.mat2d.rotate(this._matrix, this._matrix, this.rotation);
+      glMatrix.mat2d.scale(this._matrix, this._matrix, this._scale);
+
+      return this._matrix
     }
 
+    globalToLocal (point, refreshMatrix = false) {
+      const ret = glMatrix.vec2.create();
+      if (refreshMatrix) {
+        glMatrix.mat2d.invert(this._invMatrix, this.matrix);
+      } else {
+        glMatrix.mat2d.invert(this._invMatrix, this._matrix);
+      }
+      glMatrix.vec2.transformMat2d(ret, point, this._invMatrix);
+      return ret
+    }
+
+    localToGlobal (point, refreshMatrix = false) {
+      const ret = glMatrix.vec2.create();
+      if (refreshMatrix) {
+        glMatrix.vec2.transformMat2d(ret, point, this.matrix);
+      } else {
+        glMatrix.vec2.transformMat2d(ret, point, this._matrix);
+      }
+      return ret
+    }
+
+    addChild (child) {
+      this.children.push(child);
+      child.parent = this;
+    }
     addChildTo (parent) {
       parent.addChild(this);
       return this
     }
 
-    remove () {
-      if (this.parent) {
-        this.parent.removeChild(this);
+    removeChild (child) {
+      const index = this.children.indexOf(child);
+      if (index < 0) {
+        return
+      }
+      this.children(index, 1);
+      child.parent = null;
+    }
+    removeChildFrom (parent) {
+      if (parent) {
+        parent.removeChild(this);
       }
       return this
+    }
+
+    get x () {
+      return this._position[0]
+    }
+    set x (value) {
+      this._position[0] = value;
+      this._dirty = true;
+    }
+    get y () {
+      return this._position[1]
+    }
+    set y (value) {
+      this._position[1] = value;
+      this._dirty = true;
+    }
+    get rotation () {
+      return this._rotation
+    }
+    set rotation (value) {
+      this._rotation = value;
+      this._dirty = true;
+    }
+    get scaleX () {
+      return this._scale[0]
+    }
+    set scaleX (value) {
+      this._scale[0] = value;
+      this._dirty = true;
+    }
+    get scaleY () {
+      return this._scale[1]
+    }
+    set scaleY (value) {
+      this._scale[1] = value;
+      this._dirty = true;
+    }
+
+  }
+
+  class Node extends EventDispatcher {
+    constructor () {
+      super();
+      this.active = true;
+      this.transform = new Transform();
+      this.bounds = null;
+    }
+
+    _update (params) {
+      this.update(params);
+      this.fire('update', params);
+    }
+    update (params) {}
+
+    addChild (child) {
+      this.transform.addChild(child.transform);
+    }
+    removeChild (child) {
+      this.transform.removeChild(child.transform);
+    }
+
+    hit (globalPoint) {
+      if (!this.bounds) return false
+
+      const point = this.transform.globalToLocal(globalPoint);
+      return this.bounds.contains(point)
+    }
+
+    get x () {
+      return this.transform.x
+    }
+    set x (value) {
+      this.transform.x = value;
+    }
+    get y () {
+      return this.transform.y
+    }
+    set y (value) {
+      this.transform.y = value;
+    }
+    get rotation () {
+      return this.transform.rotation
+    }
+    set rotation (value) {
+      this.transform.rotation = value;
+    }
+    get scaleX () {
+      return this.transform.scaleX
+    }
+    set scaleX (value) {
+      this.transform.scaleX = value;
+    }
+    get scaleY () {
+      return this.transform.scaleY
+    }
+    set scaleY (value) {
+      this.transform.scaleY = value;
     }
 
   }
 
   class Mouse {
     constructor (canvas) {
-      this.position = [0, 0];
-      this.down = [null, null, null, null, null];
-      this.up = [null, null, null, null, null];
+      this.position = glMatrix.vec2.create();
+      this.down = [];
+      this.up = [];
+      for (let i = 0; i < 10; i++) {
+        this.down.push({
+          position: glMatrix.vec2.create(),
+          flag: 0,
+        });
+        this.up.push({
+          position: glMatrix.vec2.create(),
+          flag: 0,
+        });
+      }
+
       canvas.addEventListener('mouseover', (e) => {
-        this.x = e.offsetX * canvas.width / canvas.offsetWidth;
-        this.y = e.offsetY * canvas.height / canvas.offsetHeight;
+        this.position.set([
+          e.offsetX * canvas.width / canvas.offsetWidth,
+          e.offsetY * canvas.height / canvas.offsetHeight,
+        ]);
       });
       canvas.addEventListener('mousemove', (e) => {
-        this.x = e.offsetX * canvas.width / canvas.offsetWidth;
-        this.y = e.offsetY * canvas.height / canvas.offsetHeight;
+        this.position.set([
+          e.offsetX * canvas.width / canvas.offsetWidth,
+          e.offsetY * canvas.height / canvas.offsetHeight,
+        ]);
       });
       canvas.addEventListener('mouseleave', (e) => {
-        this.x = e.offsetX * canvas.width / canvas.offsetWidth;
-        this.y = e.offsetY * canvas.height / canvas.offsetHeight;
+        this.position.set([
+          e.offsetX * canvas.width / canvas.offsetWidth,
+          e.offsetY * canvas.height / canvas.offsetHeight,
+        ]);
       });
       canvas.addEventListener('mousedown', (e) => {
-        this.down[e.button] = {
-          x: e.offsetX * canvas.width / canvas.offsetWidth,
-          y: e.offsetY * canvas.height / canvas.offsetHeight,
-        };
+        const down = this.down[e.button];
+        down.position.set([
+          e.offsetX * canvas.width / canvas.offsetWidth,
+          e.offsetY * canvas.height / canvas.offsetHeight,
+        ]);
+        down.flag = 1;
+
+        this.up[e.button].flag = 0;
       });
       canvas.addEventListener('mouseup', (e) => {
-        this.up[e.button] = {
-          x: e.offsetX * canvas.width / canvas.offsetWidth,
-          y: e.offsetY * canvas.height / canvas.offsetHeight,
-        };
+        const up = this.up[e.button];
+        up.position.set([
+          e.offsetX * canvas.width / canvas.offsetWidth,
+          e.offsetY * canvas.height / canvas.offsetHeight,
+        ]);
+        up.flag = 1;
+
+        this.down[e.button].flag = 0;
       });
       canvas.addEventListener('wheel', (e) => {
 
       });
+    }
+
+    isDown (buttonIndex = 0) {
+      return this.down[buttonIndex].flag === 1
+    }
+    isPress (buttonIndex = 0) {
+      return this.down[buttonIndex].flag === 2
+    }
+    isUp (buttonIndex = 0) {
+      return this.up[buttonIndex].flag === 1
     }
 
     get x () {
@@ -152,15 +323,26 @@ var dlib = (function (exports) {
 
     update (game) {
       this.down.forEach((down, button) => {
-        if (down) {
-          game.fire('mousedown', { button, x: down.x, y: down.y });
-          this.down[button] = null;
+        if (down.flag === 1) {
+          game.fire('mousedown', { button, position: down.position });
         }
       });
       this.up.forEach((up, button) => {
-        if (up) {
-          game.fire('mouseup', { button, x: up.x, y: up.y });
-          this.up[button] = null;
+        if (up.flag === 1) {
+          game.fire('mouseup', { button, position: up.position });
+        }
+      });
+    }
+
+    lateUpdate () {
+      this.down.forEach((down) => {
+        if (down.flag === 1) {
+          down.flag = 2;
+        }
+      });
+      this.up.forEach((up) => {
+        if (up.flag === 1) {
+          up.flag = 2;
         }
       });
     }
@@ -215,24 +397,30 @@ var dlib = (function (exports) {
     }
 
     _tick () {
+      this.mouse.update(this);
+
       if (this._running) {
         this.deltaTime = Date.now() - this.time;
         this.time += this.deltaTime;
 
+        this.context.resetTransform();
         this.context.clearRect(0, 0, this.width, this.height);
 
-        this.mouse.update(this);
+        const params = {
+          game: this,
+          canvas: this.canvas,
+          context: this.context,
+          mouse: this.mouse,
+        };
 
         if (this.currentScene) {
-          this.currentScene._update({
-            game: this,
-            canvas: this.canvas,
-            context: this.context,
-            mouse: this.mouse,
-          });
+          this.currentScene.update(params);
         }
+        this.fire('update', params);
         requestAnimationFrame(() => this._tick());
       }
+
+      this.mouse.lateUpdate(this);
     }
 
     switchScene (scene) {
@@ -240,76 +428,56 @@ var dlib = (function (exports) {
     }
   }
 
-  class Scene extends Node {
+  class Scene extends EventDispatcher {
     constructor () {
       super();
+      this.gameObjects = [];
+      this.rootMatrix = glMatrix.mat2d.create();
     }
 
-    _update (params) {
-      this.update(params);
+    update (params) {
       this.fire('update', params);
-      this.children.forEach((c) => {
-        c._update(params);
-        if (c._draw) c._draw(params);
+
+      this.gameObjects.forEach((node) => {
+        if (node.active) {
+          node._update(params);
+
+          // rootに直接配置されているノードのみtransformを再計算
+          if (!node.transform.parent) {
+            node.transform.update(this.rootMatrix);
+          }
+
+          if (node.visible && node._draw) {
+            node._draw(params);
+          }
+        }
       });
+    }
+
+    add (node) {
+      this.gameObjects.push(node);
+    }
+
+    remove (node) {
+      const index = this.gameObjects.indexOf(node);
+      if (index >= 0) {
+        this.gameObjects.splice(index, 1);
+      }
     }
   }
 
   class DrawableNode extends Node {
     constructor () {
       super();
-      this.position = [0, 0];
-      this.rotation = 0;
-      this.scale = [1, 1];
-    }
-
-    get x () {
-      return this.position[0]
-    }
-    set x (value) {
-      this.position[0] = value;
-    }
-
-    get y () {
-      return this.position[1]
-    }
-    set y (value) {
-      this.position[1] = value;
-    }
-
-    get scaleX () {
-      return this.scale[0]
-    }
-    set scaleX (value) {
-      this.scale[0] = value;
-    }
-
-    get scaleY () {
-      return this.scale[1]
-    }
-    set scaleY (value) {
-      this.scale[1] = value;
-    }
-
-    _update (params) {
-      this.update(params);
-      this.fire('update', params);
-      this.children.forEach((c) => {
-        c._update(params);
-      });
+      this.visible = true;
     }
 
     _draw (params) {
-      const context = params.game.context;
-      context.save();
-      context.translate(this.position[0], this.position[1]);
-      context.rotate(this.rotation);
-      context.scale(this.scale[0], this.scale[1]);
+      const context = params.context;
+      const m = this.transform._matrix;
+      context.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
       this.draw(params);
-      this.children.forEach((c) => {
-        if (c._draw) c._draw(params);
-      });
-      context.restore();
+      this.fire('draw', params);
     }
 
     draw (params) {}
@@ -385,25 +553,39 @@ var dlib = (function (exports) {
       this.width = width || (image ? image.width : 100);
       this.height = height || (image ? image.height : 100);
       this.interactive = false;
+      this.origin = glMatrix.vec2.fromValues(0.5, 0.5);
     }
 
-    draw ({ game }) {
+    get originX () {
+      return this.origin[0]
+    }
+    set originX (value) {
+      this.origin[0] = value;
+    }
+    get originY () {
+      return this.origin[1]
+    }
+    set originY (value) {
+      this.origin[1] = value;
+    }
+
+    draw ({ context }) {
       if (this.image) {
-        game.context.drawImage(
+        context.drawImage(
           this.image,
           this.sx,
           this.sy,
           this.sw,
           this.sh,
-          -this.width / 2,
-          -this.height / 2,
+          this.width * this.origin[0] * -0.5,
+          this.height * this.origin[1] * -0.5,
           this.width,
           this.height
         );
       }
     }
 
-    hit (x, y) {
+    hit (point) {
 
     }
   }
@@ -417,8 +599,9 @@ var dlib = (function (exports) {
   exports.Node = Node;
   exports.Scene = Scene;
   exports.Sprite = Sprite;
+  exports.Transform = Transform;
 
   return exports;
 
-})({});
+})({}, glMatrix);
 //# sourceMappingURL=dlib.js.map

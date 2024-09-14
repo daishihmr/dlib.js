@@ -18,17 +18,23 @@
     game.switchScene(scene)
 
     const box = new dlib.DrawableNode()
+    scene.add(box)
     box.x = 250
     box.y = 250
-    box.update = ({ game }) => {
-      const d = game.deltaTime
-      box.transform.rotation += 0.001 * d
-    }
+    box.scaleX = 2
     box.draw = ({ game }) => {
       game.context.fillStyle = 'gray'
       game.context.fillRect(-30, -30, 60, 60)
     }
-    scene.add(box)
-  </script>
+
+    game.once('update', () => {
+      const l = box.transform.globalToLocal([150, 200])
+      console.log(l)
+  
+      const g = box.transform.localToGlobal([100, 0])
+      console.log(g)
+    })
+
+</script>
 </body>
 </html>

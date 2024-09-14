@@ -50,24 +50,30 @@ export class Game extends EventDispatcher {
   }
 
   _tick () {
+    this.mouse.update(this)
+
     if (this._running) {
       this.deltaTime = Date.now() - this.time
       this.time += this.deltaTime
 
+      this.context.resetTransform()
       this.context.clearRect(0, 0, this.width, this.height)
 
-      this.mouse.update(this)
+      const params = {
+        game: this,
+        canvas: this.canvas,
+        context: this.context,
+        mouse: this.mouse,
+      }
 
       if (this.currentScene) {
-        this.currentScene._update({
-          game: this,
-          canvas: this.canvas,
-          context: this.context,
-          mouse: this.mouse,
-        })
+        this.currentScene.update(params)
       }
+      this.fire('update', params)
       requestAnimationFrame(() => this._tick())
     }
+
+    this.mouse.lateUpdate(this)
   }
 
   switchScene (scene) {

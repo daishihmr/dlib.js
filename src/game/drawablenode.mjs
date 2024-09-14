@@ -3,58 +3,15 @@ import { Node } from './node.mjs'
 export class DrawableNode extends Node {
   constructor () {
     super()
-    this.position = [0, 0]
-    this.rotation = 0
-    this.scale = [1, 1]
-  }
-
-  get x () {
-    return this.position[0]
-  }
-  set x (value) {
-    this.position[0] = value
-  }
-
-  get y () {
-    return this.position[1]
-  }
-  set y (value) {
-    this.position[1] = value
-  }
-
-  get scaleX () {
-    return this.scale[0]
-  }
-  set scaleX (value) {
-    this.scale[0] = value
-  }
-
-  get scaleY () {
-    return this.scale[1]
-  }
-  set scaleY (value) {
-    this.scale[1] = value
-  }
-
-  _update (params) {
-    this.update(params)
-    this.fire('update', params)
-    this.children.forEach((c) => {
-      c._update(params)
-    })
+    this.visible = true
   }
 
   _draw (params) {
-    const context = params.game.context
-    context.save()
-    context.translate(this.position[0], this.position[1])
-    context.rotate(this.rotation)
-    context.scale(this.scale[0], this.scale[1])
+    const context = params.context
+    const m = this.transform._matrix
+    context.setTransform(m[0], m[1], m[2], m[3], m[4], m[5])
     this.draw(params)
-    this.children.forEach((c) => {
-      if (c._draw) c._draw(params)
-    })
-    context.restore()
+    this.fire('draw', params)
   }
 
   draw (params) {}

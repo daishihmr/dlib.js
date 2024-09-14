@@ -1,46 +1,63 @@
 import { EventDispatcher } from "./eventdispatcher.mjs"
+import { Transform } from './transform.mjs'
 
 export class Node extends EventDispatcher {
   constructor () {
     super()
-    this.parent = null
-    this.children = []
+    this.active = true
+    this.transform = new Transform()
+    this.bounds = null
   }
 
   _update (params) {
     this.update(params)
     this.fire('update', params)
-    this.children.forEach((c) => {
-      c._update(params)
-    })
   }
-
   update (params) {}
 
-  addChild (node) {
-    this.children.push(node)
-    node.parent = this
+  addChild (child) {
+    this.transform.addChild(child.transform)
+  }
+  removeChild (child) {
+    this.transform.removeChild(child.transform)
   }
 
-  removeChild (node) {
-    const index = this.children.indexOf(node)
-    if (index < 0) {
-      return
-    }
-    this.children(index, 1)
-    node.parent = null
+  hit (globalPoint) {
+    if (!this.bounds) return false
+
+    const point = this.transform.globalToLocal(globalPoint)
+    return this.bounds.contains(point)
   }
 
-  addChildTo (parent) {
-    parent.addChild(this)
-    return this
+  get x () {
+    return this.transform.x
   }
-
-  remove () {
-    if (this.parent) {
-      this.parent.removeChild(this)
-    }
-    return this
+  set x (value) {
+    this.transform.x = value
+  }
+  get y () {
+    return this.transform.y
+  }
+  set y (value) {
+    this.transform.y = value
+  }
+  get rotation () {
+    return this.transform.rotation
+  }
+  set rotation (value) {
+    this.transform.rotation = value
+  }
+  get scaleX () {
+    return this.transform.scaleX
+  }
+  set scaleX (value) {
+    this.transform.scaleX = value
+  }
+  get scaleY () {
+    return this.transform.scaleY
+  }
+  set scaleY (value) {
+    this.transform.scaleY = value
   }
 
 }

@@ -6,6 +6,7 @@
 </head>
 <body>
   <canvas id="canvas" width="500" height="500"></canvas>
+  <script src="../gl-matrix.js"></script>
   <script src="../../dist/dlib.js"></script>
   <script>
     const canvas = document.querySelector('#canvas')
@@ -17,12 +18,18 @@
     game.switchScene(scene)
     game.start()
 
-    scene.on('update', ({ mouse }) => {
-      // console.log(mouse.x, mouse.y)
+    game.on('mousedown', (e) => {
+      console.log(e.button, e.position[0], e.position[1])
     })
 
-    game.on('mousedown', (e) => {
-      console.log(e.button, e.x, e.y)
+    game.on('update', ({ mouse }) => {
+      if (mouse.isDown()) {
+        console.log('down')
+      } else if (mouse.isPress()) {
+        console.log('press')
+      } else if (mouse.isUp()) {
+        console.log('up')
+      }
     })
   </script>
 </body>
