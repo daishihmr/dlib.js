@@ -238,9 +238,94 @@ var dlib = (function (exports, glMatrix) {
 
   }
 
+  const Q = Math.sin(45 * Math.PI / 180);
+
+  class Keyboard {
+    constructor () {
+      this.keys = {};
+      this.shiftKey = false;
+      this.ctrlKey = false;
+      this.altKey = false;
+      this.metaKey = false;
+      this.direction = glMatrix.vec2.create();
+
+      document.addEventListener('keydown', (e) => {
+        if (!e.repeat) {
+          this.keys[e.code] = 1;
+          this.shiftKey = e.shiftKey;
+          this.ctrlKey = e.ctrlKey;
+          this.altKey = e.altKey;
+          this.metaKey = e.metaKey;
+        }
+      });
+      document.addEventListener('keyup', (e) => {
+        this.keys[e.code] = 3;
+        this.shiftKey = e.shiftKey;
+        this.ctrlKey = e.ctrlKey;
+        this.altKey = e.altKey;
+        this.metaKey = e.metaKey;
+      });
+    }
+
+    update (game) {
+      Object.keys(this.keys).forEach((code) => {
+        if (this.keys[code] === 1) {
+          game.fire('keydown', { code });
+        } else if (this.keys[code] === 3) {
+          game.fire('keyup', { code });
+        }
+      });
+    }
+
+    lateUpdate () {
+      Object.keys(this.keys).forEach((code) => {
+        if (this.keys[code] === 1) {
+          this.keys[code] = 2;
+        } else if (this.keys[code] === 3) {
+          this.keys[code] = 0;
+        }
+      });
+    }
+
+    isDown (code) {
+      return this.keys[code] === 1
+    }
+    isPress (code) {
+      return this.keys[code] === 2
+    }
+    isUp (code) {
+      return this.keys[code] === 3
+    }
+
+    getDirection () {
+      if (this.isPress('KeyA') && this.isPress('KeyW')) {
+        return glMatrix.vec2.set(this.direction, -Q, -Q)
+      } else if (this.isPress('KeyD') && this.isPress('KeyW')) {
+        return glMatrix.vec2.set(this.direction, Q, -Q)
+      } else if (this.isPress('KeyD') && this.isPress('KeyS')) {
+        return glMatrix.vec2.set(this.direction, Q, Q)
+      } else if (this.isPress('KeyA') && this.isPress('KeyS')) {
+        return glMatrix.vec2.set(this.direction, -Q, Q)
+      } else if (this.isPress('KeyA')) {
+        return glMatrix.vec2.set(this.direction, -1, 0)
+      } else if (this.isPress('KeyD')) {
+        return glMatrix.vec2.set(this.direction, 1, 0)
+      } else if (this.isPress('KeyW')) {
+        return glMatrix.vec2.set(this.direction, 0, -1)
+      } else if (this.isPress('KeyS')) {
+        return glMatrix.vec2.set(this.direction, 0, 1)
+      } else {
+        return glMatrix.vec2.set(this.direction, 0, 0)
+      }
+    }
+  }
+
   class Mouse {
     constructor (canvas) {
       this.position = glMatrix.vec2.create();
+      this.deltaPosition = glMatrix.vec2.create();
+      this.beforePosition = glMatrix.vec2.create();
+
       this.down = [];
       this.up = [];
       for (let i = 0; i < 10; i++) {
@@ -322,6 +407,8 @@ var dlib = (function (exports, glMatrix) {
     }
 
     update (game) {
+      glMatrix.vec2.sub(this.deltaPosition, this.position, this.beforePosition);
+
       this.down.forEach((down, button) => {
         if (down.flag === 1) {
           game.fire('mousedown', { button, position: down.position });
@@ -335,6 +422,7 @@ var dlib = (function (exports, glMatrix) {
     }
 
     lateUpdate () {
+      glMatrix.vec2.copy(this.beforePosition, this.position);
       this.down.forEach((down) => {
         if (down.flag === 1) {
           down.flag = 2;
@@ -357,6 +445,7 @@ var dlib = (function (exports, glMatrix) {
       this.background = 'transparent';
 
       this.mouse = new Mouse(canvas);
+      this.keyboard = new Keyboard();
 
       this.currentScene = null;
       this._running = false;
@@ -398,6 +487,7 @@ var dlib = (function (exports, glMatrix) {
 
     _tick () {
       this.mouse.update(this);
+      this.keyboard.update(this);
 
       if (this._running) {
         this.deltaTime = Date.now() - this.time;
@@ -411,6 +501,7 @@ var dlib = (function (exports, glMatrix) {
           canvas: this.canvas,
           context: this.context,
           mouse: this.mouse,
+          keyboard: this.keyboard,
         };
 
         if (this.currentScene) {
@@ -420,7 +511,8 @@ var dlib = (function (exports, glMatrix) {
         requestAnimationFrame(() => this._tick());
       }
 
-      this.mouse.lateUpdate(this);
+      this.mouse.lateUpdate();
+      this.keyboard.lateUpdate();
     }
 
     switchScene (scene) {
@@ -481,6 +573,74 @@ var dlib = (function (exports, glMatrix) {
     }
 
     draw (params) {}
+  }
+
+  class Bounds {
+    constructor () {
+      this.enable = false;
+      this.center = glMatrix.vec2.create();
+    }
+
+    get centerX () {
+      return this.center[0]
+    }
+    set centerX (value) {
+      this.center[0] = value;
+    }
+    get centerY () {
+      return this.center[1]
+    }
+    set centerY (value) {
+      this.center[1] = value;
+    }
+
+    contains (point) {
+      return false
+    }
+  }
+
+  class BoundingCircle extends Bounds {
+    constructor () {
+      super();
+      this.radius = 0;
+      this.origin = glMatrix.vec2.create();
+    }
+
+    contains (point) {
+      if (!this.enable) return false
+      if (this.radius === 0) return false
+      return glMatrix.vec2.squaredDistance(this.origin, point) <= this.radius * this.radius
+    }
+  }
+
+  class BoundingRect extends Bounds {
+    constructor () {
+      super();
+      this.size = glMatrix.vec2.create();
+    }
+
+    get width () {
+      return this.size[0]
+    }
+    set width (value) {
+      this.size[0] = value;
+    }
+    get height () {
+      return this.size[1]
+    }
+    set height (value) {
+      this.size[1] = value;
+    }
+
+    contains (point) {
+      if (!this.enable) return false
+      if (this.size[0] === 0 || this.size[1] === 0) return false
+      return this.center[0] + this.size * -0.5 <= point[0] &&
+        point[0] < this.center[0] + this.size * 0.5 &&
+        this.center[1] + this.size * -0.5 <= point[1] &&
+        point[1] < this.center[1] + this.size * 0.5
+    }
+    
   }
 
   class AssetManager {
@@ -592,9 +752,13 @@ var dlib = (function (exports, glMatrix) {
 
   exports.AssetLoaders = AssetLoaders;
   exports.AssetManager = AssetManager;
+  exports.BoundingCircle = BoundingCircle;
+  exports.BoundingRect = BoundingRect;
+  exports.Bounds = Bounds;
   exports.DrawableNode = DrawableNode;
   exports.EventDispatcher = EventDispatcher;
   exports.Game = Game;
+  exports.Keyboard = Keyboard;
   exports.Mouse = Mouse;
   exports.Node = Node;
   exports.Scene = Scene;

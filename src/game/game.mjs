@@ -1,4 +1,5 @@
 import { EventDispatcher } from './eventdispatcher.mjs'
+import { Keyboard } from './keyboard.mjs'
 import { Mouse } from "./mouse.mjs"
 
 export class Game extends EventDispatcher {
@@ -10,6 +11,7 @@ export class Game extends EventDispatcher {
     this.background = 'transparent'
 
     this.mouse = new Mouse(canvas)
+    this.keyboard = new Keyboard()
 
     this.currentScene = null
     this._running = false
@@ -51,6 +53,7 @@ export class Game extends EventDispatcher {
 
   _tick () {
     this.mouse.update(this)
+    this.keyboard.update(this)
 
     if (this._running) {
       this.deltaTime = Date.now() - this.time
@@ -64,6 +67,7 @@ export class Game extends EventDispatcher {
         canvas: this.canvas,
         context: this.context,
         mouse: this.mouse,
+        keyboard: this.keyboard,
       }
 
       if (this.currentScene) {
@@ -73,7 +77,8 @@ export class Game extends EventDispatcher {
       requestAnimationFrame(() => this._tick())
     }
 
-    this.mouse.lateUpdate(this)
+    this.mouse.lateUpdate()
+    this.keyboard.lateUpdate()
   }
 
   switchScene (scene) {

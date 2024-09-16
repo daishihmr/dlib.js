@@ -19,8 +19,8 @@
 
       const canvas = document.querySelector('#canvas')
       const game = new dlib.Game(canvas)
+      game.background = '#eee'
       const scene = new dlib.Scene()
-      scene.background = '#eee'
       game.switchScene(scene)
       game.start()
 

@@ -10,27 +10,15 @@
   <script src="../../dist/dlib.js"></script>
   <script>
     const canvas = document.querySelector('#canvas')
-    canvas.style.width = '700px'
-    canvas.style.height = '700px'
     const game = new dlib.Game(canvas)
-    game.background = '#eee'
-    const scene = new dlib.Node()
+    const scene = new dlib.Scene()
     game.switchScene(scene)
-    game.start()
-
-    game.on('mousedown', (e) => {
-      console.log(e.button, e.position[0], e.position[1])
-    })
-
-    game.on('update', ({ mouse }) => {
-      if (mouse.isDown()) {
-        console.log('down')
-      } else if (mouse.isPress()) {
-        console.log('press')
-      } else if (mouse.isUp()) {
-        console.log('up')
+    scene.on('update', ({ keyboard }) => {
+      if (keyboard.shiftKey) {
+        console.log('shift')
       }
     })
+    game.start()
   </script>
 </body>
 </html>

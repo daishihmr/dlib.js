@@ -3,6 +3,9 @@ import { vec2 } from "gl-matrix"
 export class Mouse {
   constructor (canvas) {
     this.position = vec2.create()
+    this.deltaPosition = vec2.create()
+    this.beforePosition = vec2.create()
+
     this.down = []
     this.up = []
     for (let i = 0; i < 10; i++) {
@@ -84,6 +87,8 @@ export class Mouse {
   }
 
   update (game) {
+    vec2.sub(this.deltaPosition, this.position, this.beforePosition)
+
     this.down.forEach((down, button) => {
       if (down.flag === 1) {
         game.fire('mousedown', { button, position: down.position })
@@ -97,6 +102,7 @@ export class Mouse {
   }
 
   lateUpdate () {
+    vec2.copy(this.beforePosition, this.position)
     this.down.forEach((down) => {
       if (down.flag === 1) {
         down.flag = 2
