@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <canvas id="canvas" width="600" height="600"></canvas>
+  <script src="../gl-matrix.js"></script>
+  <script src="../../dist/dlib.js"></script>
+  <script>
+    window.onload = async () => {
+      const assetManager = new dlib.AssetManager()
+      await assetManager.load({
+        atlas: {
+          'testatlas': './testatlas.json'
+        }
+      })
+
+      const canvas = document.querySelector('#canvas')
+      const game = new dlib.Game(canvas)
+      game.background = '#eee'
+      game.start()
+
+      const scene = new dlib.Scene()
+      game.switchScene(scene)
+
+      const atlas = assetManager.get('atlas', 'testatlas')
+
+      const sprite2 = new dlib.Sprite({ atlas })
+      sprite2.frame = 't4.png'
+      sprite2.x = 600
+      sprite2.y = 300
+      sprite2.originX = 1
+      scene.add(sprite2)
+      sprite2.on('draw', ({ context }) => {
+        context.strokeStyle = 'red'
+        context.strokeRect(
+          sprite2.width * -sprite2.origin[0],
+          sprite2.height * -sprite2.origin[1],
+          sprite2.width,
+          sprite2.height
+        )
+      })
+
+      const sprite0 = new dlib.Sprite({ atlas })
+      sprite0.frame = 't5.png'
+      sprite0.x = 300
+      sprite0.y = 600
+      sprite0.originY = 1
+      scene.add(sprite0)
+      sprite0.on('draw', ({ context }) => {
+        context.strokeStyle = 'red'
+        context.strokeRect(
+          sprite0.width * -sprite0.origin[0],
+          sprite0.height * -sprite0.origin[1],
+          sprite0.width,
+          sprite0.height
+        )
+      })
+
+      document.body.appendChild(atlas.image)
+    }
+  </script>
+</body>
+</html>

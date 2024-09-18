@@ -1,3 +1,5 @@
+import { Atlas } from "../sprite/atlas.mjs"
+
 export class AssetManager {
   constructor () {
     this.assets = {}
@@ -53,6 +55,13 @@ export class AssetLoaders {
     json: async ({ url }) => {
       const res = await fetch(url)
       return await res.json()
-    }
+    },
+
+    atlas: async ({ url }) => {
+      const spec = await AssetLoaders.loaders.json({ url })
+      const path = url.indexOf('/') < 0 ? './' : url.substring(0, url.lastIndexOf('/'))
+      const image = await AssetLoaders.loaders.image({ url: path + '/' + spec.meta.image })
+      return new Atlas({ spec, image })
+    },
   }
 }

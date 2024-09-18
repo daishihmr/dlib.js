@@ -1,0 +1,66 @@
+{
+  "meta": {
+    "version": "0.6.7"
+  },
+  "savePath": "D:\\documents\\dlib.js\\test\\sprite",
+  "images": [
+    {
+      "name": "t0.png",
+      "path": "D:/documents/dlib.js/test/sprite/t0.png",
+      "folder": ""
+    },
+    {
+      "name": "t1.png",
+      "path": "D:/documents/dlib.js/test/sprite/t1.png",
+      "folder": ""
+    },
+    {
+      "name": "t2.png",
+      "path": "D:/documents/dlib.js/test/sprite/t2.png",
+      "folder": ""
+    },
+    {
+      "name": "t3.png",
+      "path": "D:/documents/dlib.js/test/sprite/t3.png",
+      "folder": ""
+    },
+    {
+      "name": "t4.png",
+      "path": "D:/documents/dlib.js/test/sprite/t4.png",
+      "folder": ""
+    },
+    {
+      "name": "t5.png",
+      "path": "D:/documents/dlib.js/test/sprite/t5.png",
+      "folder": ""
+    }
+  ],
+  "folders": [],
+  "packOptions": {
+    "textureName": "testatlas",
+    "textureFormat": "png",
+    "removeFileExtension": false,
+    "prependFolderName": true,
+    "base64Export": false,
+    "tinify": false,
+    "tinifyKey": "",
+    "scale": 1,
+    "filter": "none",
+    "exporter": "JSON (hash)",
+    "fileName": "pack-result",
+    "savePath": "D:\\documents\\dlib.js\\test\\sprite",
+    "width": 512,
+    "height": 512,
+    "fixedSize": false,
+    "powerOfTwo": true,
+    "padding": 4,
+    "extrude": 0,
+    "allowRotation": true,
+    "allowTrim": true,
+    "trimMode": "trim",
+    "alphaThreshold": "0",
+    "detectIdentical": true,
+    "packer": "MaxRectsBin",
+    "packerMethod": "BestShortSideFit"
+  }
+}

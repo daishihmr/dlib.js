@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-  <canvas id="canvas" width="500" height="500"></canvas>
+  <canvas id="canvas" width="1600" height="900"></canvas>
   <script src="../gl-matrix.js"></script>
   <script src="../../dist/dlib.js"></script>
   <script>
@@ -16,19 +16,7 @@
 
     const scene = new dlib.Scene()
     game.switchScene(scene)
-
-    const box = new dlib.DrawableNode()
-    box.x = 250
-    box.y = 250
-    box.update = ({ game }) => {
-      const d = game.deltaTime
-      box.transform.rotation += 0.001 * d
-    }
-    box.draw = ({ game }) => {
-      game.context.fillStyle = 'gray'
-      game.context.fillRect(-30, -30, 60, 60)
-    }
-    scene.add(box)
+    game.fitWindow()
   </script>
 </body>
 </html>

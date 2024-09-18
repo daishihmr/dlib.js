@@ -1,0 +1,159 @@
+{
+  "frames": {
+    "t5.png": {
+      "frame": {
+        "x": 4,
+        "y": 4,
+        "w": 100,
+        "h": 400
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 400
+      },
+      "sourceSize": {
+        "w": 100,
+        "h": 400
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "t0.png": {
+      "frame": {
+        "x": 4,
+        "y": 412,
+        "w": 82,
+        "h": 184
+      },
+      "rotated": true,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 23,
+        "y": 5,
+        "w": 82,
+        "h": 184
+      },
+      "sourceSize": {
+        "w": 200,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "t4.png": {
+      "frame": {
+        "x": 196,
+        "y": 4,
+        "w": 100,
+        "h": 200
+      },
+      "rotated": true,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 100,
+        "h": 200
+      },
+      "sourceSize": {
+        "w": 100,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "t3.png": {
+      "frame": {
+        "x": 404,
+        "y": 4,
+        "w": 153,
+        "h": 104
+      },
+      "rotated": true,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 44,
+        "y": 96,
+        "w": 153,
+        "h": 104
+      },
+      "sourceSize": {
+        "w": 200,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "t2.png": {
+      "frame": {
+        "x": 196,
+        "y": 112,
+        "w": 185,
+        "h": 35
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 7,
+        "y": 7,
+        "w": 185,
+        "h": 35
+      },
+      "sourceSize": {
+        "w": 200,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "t1.png": {
+      "frame": {
+        "x": 112,
+        "y": 4,
+        "w": 51,
+        "h": 52
+      },
+      "rotated": true,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 124,
+        "y": 27,
+        "w": 51,
+        "h": 52
+      },
+      "sourceSize": {
+        "w": 200,
+        "h": 200
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "http://free-tex-packer.com",
+    "version": "0.6.7",
+    "image": "testatlas.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 512,
+      "h": 512
+    },
+    "scale": 1
+  }
+}

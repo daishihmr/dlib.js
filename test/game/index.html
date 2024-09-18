@@ -12,8 +12,8 @@
     const canvas = document.querySelector('#canvas')
     const game = new dlib.Game(canvas)
     const scene = new dlib.Node()
-    scene.on('update', ({ game }) => {
-      console.log(`tick ${ game.deltaTime }`)
+    scene.on('update', ({ deltaTime }) => {
+      console.log(`tick ${ deltaTime }`)
     })
     game.switchScene(scene)
     setTimeout(() => {

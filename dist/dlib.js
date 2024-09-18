@@ -485,6 +485,29 @@ var dlib = (function (exports, glMatrix) {
       this._running = false;
     }
 
+    fitWindow () {
+      const fit = () => {
+        this.canvas.style.position = 'absolute';
+        const aspect = this.canvas.width / this.canvas.height;
+        const windowAspect = window.innerWidth / window.innerHeight;
+        if (aspect <= windowAspect) {
+          const w = window.innerHeight * aspect;
+          this.canvas.style.width = Math.floor(w) + 'px';
+          this.canvas.style.height = Math.floor(window.innerHeight) + 'px';
+          this.canvas.style.left = Math.floor((window.innerWidth - w) * 0.5) + 'px';
+          this.canvas.style.top = '0px';
+        } else {
+          const h = window.innerWidth / aspect;
+          this.canvas.style.width = Math.floor(window.innerWidth) + 'px';
+          this.canvas.style.height = Math.floor(h) + 'px';
+          this.canvas.style.left = '0px';
+          this.canvas.style.top = Math.floor((window.innerHeight - h) * 0.5) + 'px';
+        }
+      };
+      fit();
+      window.addEventListener('resize', fit);
+    }
+
     _tick () {
       this.mouse.update(this);
       this.keyboard.update(this);
@@ -498,6 +521,8 @@ var dlib = (function (exports, glMatrix) {
 
         const params = {
           game: this,
+          deltaTime: this.deltaTime,
+          time: this.time,
           canvas: this.canvas,
           context: this.context,
           mouse: this.mouse,
@@ -562,10 +587,14 @@ var dlib = (function (exports, glMatrix) {
     constructor () {
       super();
       this.visible = true;
+      this.globalAlpha = 1;
+      this.globalCompositeOperation = 'source-over';
     }
 
     _draw (params) {
       const context = params.context;
+      context.globalCompositeOperation = this.globalCompositeOperation;
+      context.globalAlpha = this.globalAlpha;
       const m = this.transform._matrix;
       context.setTransform(m[0], m[1], m[2], m[3], m[4], m[5]);
       this.draw(params);
@@ -643,6 +672,17 @@ var dlib = (function (exports, glMatrix) {
     
   }
 
+  class Atlas {
+    constructor ({ spec, image }) {
+      this.spec = spec;
+      this.image = image;
+    }
+
+    get (frameName) {
+      return this.spec.frames[frameName]
+    }
+  }
+
   class AssetManager {
     constructor () {
       this.assets = {};
@@ -698,22 +738,37 @@ var dlib = (function (exports, glMatrix) {
       json: async ({ url }) => {
         const res = await fetch(url);
         return await res.json()
-      }
+      },
+
+      atlas: async ({ url }) => {
+        const spec = await AssetLoaders.loaders.json({ url });
+        const path = url.indexOf('/') < 0 ? './' : url.substring(0, url.lastIndexOf('/'));
+        const image = await AssetLoaders.loaders.image({ url: path + '/' + spec.meta.image });
+        return new Atlas({ spec, image })
+      },
     }
   }
 
   class Sprite extends DrawableNode {
-    constructor ({ image, sx, sy, sw, sh, width, height }) {
+    constructor ({ image, sx, sy, sw, sh, dx, dy, dw, dh, width, height, atlas, px, py }) {
       super();
-      this.image = image;
+      this.image = atlas ? atlas.image : image;
       this.sx = sx || 0;
       this.sy = sy || 0;
       this.sw = sw || (image ? image.width : 0);
       this.sh = sh || (image ? image.height : 0);
+      this.dx = dx || 0;
+      this.dy = dy || 0;
+      this.dw = dw || (image ? image.width : 0);
+      this.dh = dh || (image ? image.height : 0);
+      this.px = px || 0;
+      this.py = py || 0;
       this.width = width || (image ? image.width : 100);
       this.height = height || (image ? image.height : 100);
-      this.interactive = false;
       this.origin = glMatrix.vec2.fromValues(0.5, 0.5);
+      this.atlas = atlas;
+      this.frameName = null;
+      this.rotated = false;
     }
 
     get originX () {
@@ -729,29 +784,70 @@ var dlib = (function (exports, glMatrix) {
       this.origin[1] = value;
     }
 
+    get frame () {
+      return this.frameName
+    }
+    set frame (value) {
+      this.setFrame(value);
+    }
+
     draw ({ context }) {
       if (this.image) {
-        context.drawImage(
-          this.image,
-          this.sx,
-          this.sy,
-          this.sw,
-          this.sh,
-          this.width * this.origin[0] * -0.5,
-          this.height * this.origin[1] * -0.5,
-          this.width,
-          this.height
-        );
+        if (this.rotated) {
+          context.rotate(-90 * Math.PI / 180);
+          context.drawImage(
+            this.image,
+            this.sx,
+            this.sy,
+            this.sh,
+            this.sw,
+            this.height * -this.origin[1] + this.dy,
+            this.width * -this.origin[0] + this.dx,
+            this.dh,
+            this.dw,
+          );
+          context.rotate(90 * Math.PI / 180);
+        } else {
+          context.drawImage(
+            this.image,
+            this.sx,
+            this.sy,
+            this.sw,
+            this.sh,
+            this.width * -this.origin[0] + this.dx,
+            this.height * -this.origin[1] + this.dy,
+            this.dw,
+            this.dh
+          );
+        }
       }
     }
 
-    hit (point) {
+    setFrame (frameName) {
+      this.frameName = frameName;
+      if (!this.atlas) return
 
+      const frame = this.atlas.get(this.frameName);
+      this.sx = frame.frame.x;
+      this.sy = frame.frame.y;
+      this.sw = frame.frame.w;
+      this.sh = frame.frame.h;
+      this.dx = frame.spriteSourceSize.x;
+      this.dy = frame.spriteSourceSize.y;
+      this.dw = frame.spriteSourceSize.w;
+      this.dh = frame.spriteSourceSize.h;
+      this.px = frame.pivot.x;
+      this.py = frame.pivot.y;
+      this.width = frame.sourceSize.w;
+      this.height = frame.sourceSize.h;
+      this.rotated = frame.rotated;
     }
+
   }
 
   exports.AssetLoaders = AssetLoaders;
   exports.AssetManager = AssetManager;
+  exports.Atlas = Atlas;
   exports.BoundingCircle = BoundingCircle;
   exports.BoundingRect = BoundingRect;
   exports.Bounds = Bounds;

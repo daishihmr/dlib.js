@@ -5,33 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-  <canvas id="canvas" width="500" height="500"></canvas>
+  <canvas id="canvas" width="600" height="600"></canvas>
   <script src="../gl-matrix.js"></script>
   <script src="../../dist/dlib.js"></script>
   <script>
     window.onload = async () => {
       const assetManager = new dlib.AssetManager()
       await assetManager.load({
-        image: {
-          'tex': './sample-file.256x256.png'
+        atlas: {
+          'fighter': './fighter.json'
         }
       })
 
       const canvas = document.querySelector('#canvas')
       const game = new dlib.Game(canvas)
       game.background = '#eee'
-      const scene = new dlib.Scene()
-      game.switchScene(scene)
       game.start()
 
-      const sprite = new dlib.Sprite({ image: assetManager.get('image', 'tex') })
-      sprite.x = 250
-      sprite.y = 250
-      scene.add(sprite)
-      sprite.on('update', ({ deltaTime, time }) => {
-        sprite.rotation += deltaTime * 0.001
-        sprite.scaleX = Math.sin(time * 0.002)
+      const scene = new dlib.Scene()
+      game.switchScene(scene)
+
+      const atlas = assetManager.get('atlas', 'fighter')
+
+      const fighter = new dlib.Sprite({ atlas })
+      fighter.frame = 'fighterA4.png'
+      fighter.x = 300
+      fighter.y = 300
+      fighter.scaleX = 4
+      fighter.scaleY = 4
+      fighter.on('update', ({ deltaTime, time }) => {
+        fighter.rotation += deltaTime * 0.001
+        fighter.scaleY = 4 * Math.sin(time * 0.002)
       })
+      scene.add(fighter)
+
+      document.body.appendChild(atlas.image)
     }
   </script>
 </body>

@@ -22,24 +22,24 @@
     box.x = 250
     box.y = 250
     box.scaleX = 2
-    box.update = ({ game }) => {
-      box.transform.rotation += 0.001 * game.deltaTime
+    box.update = ({ deltaTime }) => {
+      box.transform.rotation += 0.001 * deltaTime
     }
-    box.draw = ({ game }) => {
-      game.context.fillStyle = 'gray'
-      game.context.fillRect(-30, -30, 60, 60)
+    box.draw = ({ context }) => {
+      context.fillStyle = 'gray'
+      context.fillRect(-30, -30, 60, 60)
     }
     
     const box2 = new dlib.DrawableNode()
     scene.add(box2)
     box2.x = 50
     box2.y = 0
-    box2.update = ({ game }) => {
-      box2.transform.rotation += 0.001 * game.deltaTime
+    box2.update = ({ deltaTime }) => {
+      box2.transform.rotation += 0.001 * deltaTime
     }
-    box2.draw = ({ game }) => {
-      game.context.fillStyle = 'black'
-      game.context.fillRect(-20, -20, 40, 40)
+    box2.draw = ({ context }) => {
+      context.fillStyle = 'black'
+      context.fillRect(-20, -20, 40, 40)
     }
     box.transform.addChild(box2.transform)
     
@@ -47,12 +47,12 @@
     scene.add(box3)
     box3.x = 50
     box3.y = 0
-    box3.update = ({ game }) => {
-      box3.transform.rotation -= 0.002 * game.deltaTime
+    box3.update = ({ deltaTime }) => {
+      box3.transform.rotation -= 0.002 * deltaTime
     }
-    box3.draw = ({ game }) => {
-      game.context.fillStyle = 'black'
-      game.context.fillRect(-10, -10, 20, 20)
+    box3.draw = ({ context }) => {
+      context.fillStyle = 'black'
+      context.fillRect(-10, -10, 20, 20)
     }
     box2.transform.addChild(box3.transform)
   </script>

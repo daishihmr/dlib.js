@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <script src="../gl-matrix.js"></script>
+  <script src="../../dist/dlib.js"></script>
+  <script>
+    window.onload = async () => {
+      const assetManager = new dlib.AssetManager()
+      await assetManager.load({
+        atlas: {
+          testatlas: 'testatlas.json'
+        }
+      })
+      const testAtlas = assetManager.assets.atlas['testatlas']
+      console.log(testAtlas)
+      document.body.appendChild(testAtlas.image)
+      const frame = testAtlas.get('t0.png')
+      console.log(frame)
+    }
+  </script>
+</body>
+</html>

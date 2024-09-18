@@ -51,6 +51,29 @@ export class Game extends EventDispatcher {
     this._running = false
   }
 
+  fitWindow () {
+    const fit = () => {
+      this.canvas.style.position = 'absolute'
+      const aspect = this.canvas.width / this.canvas.height
+      const windowAspect = window.innerWidth / window.innerHeight
+      if (aspect <= windowAspect) {
+        const w = window.innerHeight * aspect
+        this.canvas.style.width = Math.floor(w) + 'px'
+        this.canvas.style.height = Math.floor(window.innerHeight) + 'px'
+        this.canvas.style.left = Math.floor((window.innerWidth - w) * 0.5) + 'px'
+        this.canvas.style.top = '0px'
+      } else {
+        const h = window.innerWidth / aspect
+        this.canvas.style.width = Math.floor(window.innerWidth) + 'px'
+        this.canvas.style.height = Math.floor(h) + 'px'
+        this.canvas.style.left = '0px'
+        this.canvas.style.top = Math.floor((window.innerHeight - h) * 0.5) + 'px'
+      }
+    }
+    fit()
+    window.addEventListener('resize', fit)
+  }
+
   _tick () {
     this.mouse.update(this)
     this.keyboard.update(this)
@@ -64,6 +87,8 @@ export class Game extends EventDispatcher {
 
       const params = {
         game: this,
+        deltaTime: this.deltaTime,
+        time: this.time,
         canvas: this.canvas,
         context: this.context,
         mouse: this.mouse,
