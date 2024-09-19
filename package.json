@@ -2,7 +2,7 @@
   "name": "dlib.js",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/main.js",
+  "main": "dist/dlib.js",
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c -w",

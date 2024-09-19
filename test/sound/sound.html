@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <button id="playbutton">play</button>
+  <script src="../gl-matrix.js"></script>
+  <script src="../../dist/dlib.js"></script>
+  <script>
+    window.onload = async () => {
+      const assetManager = new dlib.AssetManager()
+      await assetManager.load({
+        sound: {
+          'test': './sample.mp3'
+        },
+      })
+      const sound = assetManager.get('sound', 'test')
+      
+      document.querySelector('#playbutton').onclick = () => {
+        console.log('click')
+        sound.volume = Math.random()
+        sound.start()
+      }
+    }
+  </script>
+</body>
+</html>

@@ -238,6 +238,245 @@ var dlib = (function (exports, glMatrix) {
 
   }
 
+  class Ease {
+    static None = x => x
+    static InSine = (x) => {
+      return 1 - Math.cos((x * Math.PI) / 2)
+    }
+    static OutSine = (x) => {
+      return Math.sin((x * Math.PI) / 2)
+    }
+    static InOutSine = (x) => {
+      return -(Math.cos(Math.PI * x) - 1) / 2
+    }
+    static InQuad = (x) => {
+      return x * x
+    }
+    static OutQuad = (x) => {
+      return 1 - (1 - x) * (1 - x)
+    }
+    static InOutQuad = (x) => {
+      return x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2
+    }
+    static InCubic = (x) => {
+      return x * x * x
+    }
+    static OutCubic = (x) => {
+      return 1 - Math.pow(1 - x, 3)
+    }
+    static InOutCubic = (x) => {
+      return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2
+    }
+    static InQuart = (x) => {
+      return x * x * x * x
+    }
+    static OutQuart = (x) => {
+      return 1 - Math.pow(1 - x, 4)
+    }
+    static InOutQuart = (x) => {
+      return x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2
+    }
+    static InQuint = (x) => {
+      return x * x * x * x * x
+    }
+    static OutQuint = (x) => {
+      return 1 - Math.pow(1 - x, 5)
+    }
+    static InOutQuint = (x) => {
+      return x < 0.5 ? 16 * x * x * x * x * x : 1 - Math.pow(-2 * x + 2, 5) / 2
+    }
+    static InExpo = (x) => {
+      return x === 0 ? 0 : Math.pow(2, 10 * x - 10)
+    }
+    static OutExpo = (x) => {
+      return x === 1 ? 1 : 1 - Math.pow(2, -10 * x)
+    }
+    static InOutExpo = (x) => {
+      return x === 0
+        ? 0
+        : x === 1
+        ? 1
+        : x < 0.5 ? Math.pow(2, 20 * x - 10) / 2
+        : (2 - Math.pow(2, -20 * x + 10)) / 2
+    }
+    static InCirc = (x) => {
+      return 1 - Math.sqrt(1 - Math.pow(x, 2))
+    }
+    static OutCirc = (x) => {
+      return Math.sqrt(1 - Math.pow(x - 1, 2))
+    }
+    static InOutCirc = (x) => {
+      return x < 0.5
+        ? (1 - Math.sqrt(1 - Math.pow(2 * x, 2))) / 2
+        : (Math.sqrt(1 - Math.pow(-2 * x + 2, 2)) + 1) / 2
+    }
+    static InBack = (x) => {
+      const c1 = 1.70158;
+      const c3 = c1 + 1;
+
+      return c3 * x * x * x - c1 * x * x
+    }
+    static OutBack = (x) => {
+      const c1 = 1.70158;
+      const c3 = c1 + 1;
+
+      return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2)
+    }
+    static InOutBack = (x) => {
+      const c1 = 1.70158;
+      const c2 = c1 * 1.525;
+
+      return x < 0.5
+        ? (Math.pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2
+        : (Math.pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2
+    }
+    static InElastic = (x) => {
+      const c4 = (2 * Math.PI) / 3;
+
+      return x === 0
+        ? 0
+        : x === 1
+        ? 1
+        : -Math.pow(2, 10 * x - 10) * Math.sin((x * 10 - 10.75) * c4)
+    }
+    static OutElastic = (x) => {
+      const c4 = (2 * Math.PI) / 3;
+
+      return x === 0
+        ? 0
+        : x === 1
+        ? 1
+        : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1
+    }
+    static InOutElastic = (x) => {
+      const c5 = (2 * Math.PI) / 4.5;
+
+      return x === 0
+        ? 0
+        : x === 1
+        ? 1
+        : x < 0.5
+        ? -(Math.pow(2, 20 * x - 10) * Math.sin((20 * x - 11.125) * c5)) / 2
+        : (Math.pow(2, -20 * x + 10) * Math.sin((20 * x - 11.125) * c5)) / 2 + 1
+    }
+    static InBounce = (x) => {
+      return 1 - Ease.OutBounce(1 - x)
+    }
+    static OutBounce = (x) => {
+      const n1 = 7.5625;
+      const d1 = 2.75;
+
+      if (x < 1 / d1) {
+          return n1 * x * x
+      } else if (x < 2 / d1) {
+          return n1 * (x -= 1.5 / d1) * x + 0.75
+      } else if (x < 2.5 / d1) {
+          return n1 * (x -= 2.25 / d1) * x + 0.9375
+      } else {
+          return n1 * (x -= 2.625 / d1) * x + 0.984375
+      }
+    }
+    static InOutBounce = (x) => {
+      return x < 0.5
+        ? (1 - Ease.OutBounce(1 - 2 * x)) / 2
+        : (1 + Ease.OutBounce(2 * x - 1)) / 2
+    }
+  }
+
+  class Tween extends EventDispatcher {
+    constructor (
+      target,
+      fromValues,
+      toValues,
+      startTime,
+      duration,
+      ease
+    ) {
+      super();
+      
+      this.target = target;
+      this.fromValues = fromValues;
+      this.toValues = toValues;
+      this.startTime = startTime;
+      this.duration = duration;
+      this.ease = ease;
+      
+      this.keys = Object.keys(this.fromValues);
+      this.deltas = {};
+      this.keys.map((key) => {
+        this.deltas[key] = toValues[key] - fromValues[key];
+      });
+
+      this.time = 0;
+      this.paused = false;
+    }
+
+    update ({ deltaTime }) {
+      if (!this.paused) {
+        this.time += deltaTime;
+      }
+      const t = (this.time - this.startTime) / this.duration;
+      if (t < 1) {
+        const v = this.ease(t);
+        this.keys.forEach((key) => {
+          const delta = this.deltas[key];
+          this.target[key] = this.fromValues[key] + delta * v;
+        });
+      } else {
+        this.keys.forEach((key) => {
+          this.target[key] = this.toValues[key];
+        });
+        this.fire('complete');
+      }
+    }
+
+    pause () {
+      this.paused = true;
+    }
+    resume () {
+      this.paused = false;
+    }
+  }
+
+  class Anim {
+    constructor (game) {
+      this.game = game;
+    }
+
+    fromTo (target, fromValues, toValues, duration, ease = Ease.None) {
+      const tween = new Tween(
+        target,
+        fromValues,
+        toValues,
+        this.game.time,
+        duration,
+        ease,
+      );
+      tween.on('complete', () => {
+        const index = this.game.tweens.indexOf(tween);
+        if (index >= 0) this.game.tweens.splice(index, 1);
+      });
+      this.game.tweens.push(tween);
+      return tween
+    }
+
+    from (target, fromValues, duration, ease = Ease.None) {
+      const toValues = {};
+      Object.keys(toValues).forEach((key) => {
+        toValues[key] = target[key];
+      });
+      return this.fromTo(fromValues, toValues, duration, ease)
+    }
+
+    to (target, toValues, duration, ease = Ease.None) {
+      const fromValues = {};
+      Object.keys(toValues).forEach((key) => {
+        fromValues[key] = target[key];
+      });
+      return this.fromTo(fromValues, toValues, duration, ease)
+    }
+  }
+
   const Q = Math.sin(45 * Math.PI / 180);
 
   class Keyboard {
@@ -451,6 +690,9 @@ var dlib = (function (exports, glMatrix) {
       this._running = false;
       this.time = 0;
       this.deltaTime = 0;
+
+      this.anim = new Anim(this);
+      this.tweens = [];
     }
 
     get background () {
@@ -488,16 +730,16 @@ var dlib = (function (exports, glMatrix) {
     fitWindow () {
       const fit = () => {
         this.canvas.style.position = 'absolute';
-        const aspect = this.canvas.width / this.canvas.height;
+        const gameAspect = this.canvas.width / this.canvas.height;
         const windowAspect = window.innerWidth / window.innerHeight;
-        if (aspect <= windowAspect) {
-          const w = window.innerHeight * aspect;
+        if (gameAspect <= windowAspect) {
+          const w = window.innerHeight * gameAspect;
           this.canvas.style.width = Math.floor(w) + 'px';
           this.canvas.style.height = Math.floor(window.innerHeight) + 'px';
           this.canvas.style.left = Math.floor((window.innerWidth - w) * 0.5) + 'px';
           this.canvas.style.top = '0px';
         } else {
-          const h = window.innerWidth / aspect;
+          const h = window.innerWidth / gameAspect;
           this.canvas.style.width = Math.floor(window.innerWidth) + 'px';
           this.canvas.style.height = Math.floor(h) + 'px';
           this.canvas.style.left = '0px';
@@ -532,6 +774,8 @@ var dlib = (function (exports, glMatrix) {
         if (this.currentScene) {
           this.currentScene.update(params);
         }
+        this.tweens.forEach(t => t.update(params));
+
         this.fire('update', params);
         requestAnimationFrame(() => this._tick());
       }
@@ -672,6 +916,52 @@ var dlib = (function (exports, glMatrix) {
     
   }
 
+  class Sound extends EventDispatcher {
+    static context = new AudioContext()
+
+    constructor (audiobuffer) {
+      super();
+      this.source = null;
+      this.audiobuffer = audiobuffer;
+      this.gainNode = new GainNode(Sound.context);
+      this.gainNode.connect(Sound.context.destination);
+    }
+
+    createNewSource () {
+      this.source = new AudioBufferSourceNode(Sound.context);
+      this.source.connect(this.gainNode);
+      this.source.buffer = this.audiobuffer;
+      this.source.addEventListener('ended', (e) => {
+        this.fire('ended', e);
+        this.source.disconnect();
+        this.source = null;
+      });
+      return this.source
+    }
+
+    start ({ when, offset, duration, loop = false, loopStart = 0, loopEnd = 0 }) {
+      const source = this.createNewSource();
+      source.loop = loop;
+      source.loopStart = loopStart;
+      source.loopEnd = loopEnd;
+      if (duration) {
+        source.start(when, offset, duration);
+      } else {
+        source.start(when, offset);
+      }
+    }
+    stop () {
+      if (this.source) this.source.stop();
+    }
+
+    get volume () {
+      return this.gainNode.gain.value
+    }
+    set volume (value) {
+      this.gainNode.gain.value = value;
+    }
+  }
+
   class Atlas {
     constructor ({ spec, image }) {
       this.spec = spec;
@@ -745,6 +1035,13 @@ var dlib = (function (exports, glMatrix) {
         const path = url.indexOf('/') < 0 ? './' : url.substring(0, url.lastIndexOf('/'));
         const image = await AssetLoaders.loaders.image({ url: path + '/' + spec.meta.image });
         return new Atlas({ spec, image })
+      },
+
+      sound: async ({ url }) => {
+        const res = await fetch(url);
+        const buffer = await res.arrayBuffer();
+        const decodedData = await Sound.context.decodeAudioData(buffer);
+        return new Sound(decodedData)
       },
     }
   }
@@ -845,6 +1142,7 @@ var dlib = (function (exports, glMatrix) {
 
   }
 
+  exports.Anim = Anim;
   exports.AssetLoaders = AssetLoaders;
   exports.AssetManager = AssetManager;
   exports.Atlas = Atlas;
@@ -852,14 +1150,17 @@ var dlib = (function (exports, glMatrix) {
   exports.BoundingRect = BoundingRect;
   exports.Bounds = Bounds;
   exports.DrawableNode = DrawableNode;
+  exports.Ease = Ease;
   exports.EventDispatcher = EventDispatcher;
   exports.Game = Game;
   exports.Keyboard = Keyboard;
   exports.Mouse = Mouse;
   exports.Node = Node;
   exports.Scene = Scene;
+  exports.Sound = Sound;
   exports.Sprite = Sprite;
   exports.Transform = Transform;
+  exports.Tween = Tween;
 
   return exports;
 

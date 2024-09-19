@@ -1,3 +1,4 @@
+import { Sound } from "../sound/Sound.mjs"
 import { Atlas } from "../sprite/atlas.mjs"
 
 export class AssetManager {
@@ -62,6 +63,13 @@ export class AssetLoaders {
       const path = url.indexOf('/') < 0 ? './' : url.substring(0, url.lastIndexOf('/'))
       const image = await AssetLoaders.loaders.image({ url: path + '/' + spec.meta.image })
       return new Atlas({ spec, image })
+    },
+
+    sound: async ({ url }) => {
+      const res = await fetch(url)
+      const buffer = await res.arrayBuffer()
+      const decodedData = await Sound.context.decodeAudioData(buffer)
+      return new Sound(decodedData)
     },
   }
 }

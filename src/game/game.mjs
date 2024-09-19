@@ -1,3 +1,4 @@
+import { Anim } from '../anim/Anim.mjs'
 import { EventDispatcher } from './eventdispatcher.mjs'
 import { Keyboard } from './keyboard.mjs'
 import { Mouse } from "./mouse.mjs"
@@ -17,6 +18,9 @@ export class Game extends EventDispatcher {
     this._running = false
     this.time = 0
     this.deltaTime = 0
+
+    this.anim = new Anim(this)
+    this.tweens = []
   }
 
   get background () {
@@ -54,16 +58,16 @@ export class Game extends EventDispatcher {
   fitWindow () {
     const fit = () => {
       this.canvas.style.position = 'absolute'
-      const aspect = this.canvas.width / this.canvas.height
+      const gameAspect = this.canvas.width / this.canvas.height
       const windowAspect = window.innerWidth / window.innerHeight
-      if (aspect <= windowAspect) {
-        const w = window.innerHeight * aspect
+      if (gameAspect <= windowAspect) {
+        const w = window.innerHeight * gameAspect
         this.canvas.style.width = Math.floor(w) + 'px'
         this.canvas.style.height = Math.floor(window.innerHeight) + 'px'
         this.canvas.style.left = Math.floor((window.innerWidth - w) * 0.5) + 'px'
         this.canvas.style.top = '0px'
       } else {
-        const h = window.innerWidth / aspect
+        const h = window.innerWidth / gameAspect
         this.canvas.style.width = Math.floor(window.innerWidth) + 'px'
         this.canvas.style.height = Math.floor(h) + 'px'
         this.canvas.style.left = '0px'
@@ -98,6 +102,8 @@ export class Game extends EventDispatcher {
       if (this.currentScene) {
         this.currentScene.update(params)
       }
+      this.tweens.forEach(t => t.update(params))
+
       this.fire('update', params)
       requestAnimationFrame(() => this._tick())
     }
