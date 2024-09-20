@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <canvas id="canvas" width="500" height="500"></canvas>
+  <script src="../gl-matrix.js"></script>
+  <script src="../../dist/dlib.js"></script>
+  <script>
+    const canvas = document.querySelector('#canvas')
+    const game = new dlib.Game(canvas)
+    game.background = '#eee'
+    game.start()
+
+    const scene = new dlib.Scene()
+    game.switchScene(scene)
+
+    const box = new dlib.DrawableNode()
+    scene.add(box)
+    box.x = 100
+    box.y = 250
+    box.draw = ({ context }) => {
+      context.fillStyle = 'gray'
+      context.fillRect(-30, -30, 60, 60)
+    }
+
+    const go = async () => {
+      await game.anim.to(box, { x: 400 }, {
+        delay: 1000,
+        duration: 1000,
+        ease: 'inOutBack',
+      })
+      await game.anim.to(box, { x: 50, y: 50 }, {
+        duration: 800,
+        delay: 100,
+        ease: 'inOutQuart',
+      })
+      await game.anim.to(box, { x: 450 }, {
+        duration: 800,
+        delay: 100,
+        ease: 'inOutQuart',
+      })
+      await game.anim.to(box, { y: 450 }, {
+        duration: 800,
+        delay: 100,
+        ease: 'inOutQuart',
+      })
+      await game.anim.to(box, { x: 50 }, {
+        duration: 800,
+        delay: 100,
+        ease: 'inOutQuart',
+      })
+      await game.anim.to(box, { y: 50 }, {
+        duration: 800,
+        delay: 100,
+        ease: 'inOutQuart',
+      })
+      await game.anim.to(box, { x: 250, y: 250 }, {
+        duration: 800,
+        delay: 100,
+        ease: 'inOutQuart',
+      })
+      await game.anim.to(box, { scaleX: 2, scaleY: 2 }, {
+        duration: 200,
+        ease: 'outBack',
+      })
+      await game.anim.to(box, { scaleX: 1, scaleY: 1, rotation: 4 * Math.PI }, {
+        duration: 800,
+        delay: 100,
+        ease: 'outQuart',
+      })
+    }
+
+    go()
+  </script>
+</body>
+</html>

@@ -191,13 +191,6 @@ var dlib = (function (exports, glMatrix) {
     }
     update (params) {}
 
-    addChild (child) {
-      this.transform.addChild(child.transform);
-    }
-    removeChild (child) {
-      this.transform.removeChild(child.transform);
-    }
-
     hit (globalPoint) {
       if (!this.bounds) return false
 
@@ -381,42 +374,97 @@ var dlib = (function (exports, glMatrix) {
         ? (1 - Ease.OutBounce(1 - 2 * x)) / 2
         : (1 + Ease.OutBounce(2 * x - 1)) / 2
     }
+
+    static funcs = {
+      'none': Ease.None,
+      'inSine': Ease.InSine,
+      'outSine': Ease.OutSine,
+      'inOutSine': Ease.InOutSine,
+      'inQuad': Ease.InQuad,
+      'outQuad': Ease.OutQuad,
+      'inOutQuad': Ease.InOutQuad,
+      'inCubic': Ease.InCubic,
+      'outCubic': Ease.OutCubic,
+      'inOutCubic': Ease.InOutCubic,
+      'inQuart': Ease.InQuart,
+      'outQuart': Ease.OutQuart,
+      'inOutQuart': Ease.InOutQuart,
+      'inQuint': Ease.InQuint,
+      'outQuint': Ease.OutQuint,
+      'inOutQuint': Ease.InOutQuint,
+      'inExpo': Ease.InExpo,
+      'outExpo': Ease.OutExpo,
+      'inOutExpo': Ease.InOutExpo,
+      'inCirc': Ease.InCirc,
+      'outCirc': Ease.OutCirc,
+      'inOutCirc': Ease.InOutCirc,
+      'inBack': Ease.InBack,
+      'outBack': Ease.OutBack,
+      'inOutBack': Ease.InOutBack,
+      'inElastic': Ease.InElastic,
+      'outElastic': Ease.OutElastic,
+      'inOutElastic': Ease.InOutElastic,
+      'inBounce': Ease.InBounce,
+      'outBounce': Ease.OutBounce,
+      'inOutBounce': Ease.InOutBounce,
+    }
   }
 
   class Tween extends EventDispatcher {
     constructor (
       target,
-      fromValues,
       toValues,
-      startTime,
-      duration,
-      ease
+      {
+        duration,
+        delay = 0,
+        ease = Ease.None,
+      }
     ) {
       super();
       
       this.target = target;
-      this.fromValues = fromValues;
       this.toValues = toValues;
-      this.startTime = startTime;
       this.duration = duration;
-      this.ease = ease;
-      
-      this.keys = Object.keys(this.fromValues);
-      this.deltas = {};
-      this.keys.map((key) => {
-        this.deltas[key] = toValues[key] - fromValues[key];
-      });
 
-      this.time = 0;
+      if (typeof(ease) === 'function') {
+        this.ease = ease;
+      } else {
+        this.ease = Ease.funcs[ease];
+      }
+      
+      this.keys = Object.keys(this.toValues);
+      this.fromValues = {};
+      this.deltas = {};
+
+      this.time = -delay;
       this.paused = false;
+      this.started = false;
+      this.ended = false;
+    }
+
+    resetFromValues () {
+      this.keys.map((key) => {
+        this.fromValues[key] = this.target[key];
+        this.deltas[key] = this.toValues[key] - this.fromValues[key];
+      });
     }
 
     update ({ deltaTime }) {
+      if (this.ended) return
+
       if (!this.paused) {
         this.time += deltaTime;
+        if (this.time >= 0 && !this.started) {
+          this.resetFromValues();
+          this.fire('start');
+          this.started = true;
+        }
       }
-      const t = (this.time - this.startTime) / this.duration;
-      if (t < 1) {
+
+      if (this.time < 0) return
+
+      const t = Math.max(0, this.time) / this.duration;
+      if (t < 1.0) {
         const v = this.ease(t);
         this.keys.forEach((key) => {
           const delta = this.deltas[key];
@@ -427,6 +475,7 @@ var dlib = (function (exports, glMatrix) {
           this.target[key] = this.toValues[key];
         });
         this.fire('complete');
+        this.ended = true;
       }
     }
 
@@ -436,6 +485,10 @@ var dlib = (function (exports, glMatrix) {
     resume () {
       this.paused = false;
     }
+    kill () {
+      this.fire('complete');
+      this.ended = true;
+    }
   }
 
   class Anim {
@@ -443,37 +496,34 @@ var dlib = (function (exports, glMatrix) {
       this.game = game;
     }
 
-    fromTo (target, fromValues, toValues, duration, ease = Ease.None) {
-      const tween = new Tween(
-        target,
-        fromValues,
-        toValues,
-        this.game.time,
-        duration,
-        ease,
-      );
-      tween.on('complete', () => {
-        const index = this.game.tweens.indexOf(tween);
-        if (index >= 0) this.game.tweens.splice(index, 1);
-      });
-      this.game.tweens.push(tween);
-      return tween
-    }
-
-    from (target, fromValues, duration, ease = Ease.None) {
-      const toValues = {};
-      Object.keys(toValues).forEach((key) => {
-        toValues[key] = target[key];
-      });
-      return this.fromTo(fromValues, toValues, duration, ease)
-    }
-
-    to (target, toValues, duration, ease = Ease.None) {
-      const fromValues = {};
-      Object.keys(toValues).forEach((key) => {
-        fromValues[key] = target[key];
-      });
-      return this.fromTo(fromValues, toValues, duration, ease)
+    to (target, toValues, { duration, delay = 0, ease = Ease.None, onStart, onComplete }) {
+      return new Promise((resolve) => {
+        const tween = new Tween(
+          target,
+          toValues,
+          {
+            duration,
+            delay,
+            ease,
+          }
+        );
+        if (onStart) {
+          tween.on('start', onStart);
+        }
+        if (onComplete) {
+          tween.on('complete', onComplete);
+        }
+    
+        tween.on('complete', () => {
+          const index = this.game.tweens.indexOf(tween);
+          if (index >= 0) {
+            this.game.tweens.splice(index, 1);
+          }
+          resolve(tween);
+        });
+        
+        this.game.tweens.push(tween);
+      })
     }
   }
 
@@ -774,7 +824,7 @@ var dlib = (function (exports, glMatrix) {
         if (this.currentScene) {
           this.currentScene.update(params);
         }
-        this.tweens.forEach(t => t.update(params));
+        Array.from(this.tweens).forEach(t => t.update(params));
 
         this.fire('update', params);
         requestAnimationFrame(() => this._tick());
@@ -799,7 +849,7 @@ var dlib = (function (exports, glMatrix) {
     update (params) {
       this.fire('update', params);
 
-      this.gameObjects.forEach((node) => {
+      Array.from(this.gameObjects).forEach((node) => {
         if (node.active) {
           node._update(params);
 

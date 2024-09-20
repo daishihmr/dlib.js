@@ -11,7 +11,7 @@ export class Scene extends EventDispatcher {
   update (params) {
     this.fire('update', params)
 
-    this.gameObjects.forEach((node) => {
+    Array.from(this.gameObjects).forEach((node) => {
       if (node.active) {
         node._update(params)
 

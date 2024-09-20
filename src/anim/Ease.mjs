@@ -141,4 +141,38 @@ export class Ease {
       ? (1 - Ease.OutBounce(1 - 2 * x)) / 2
       : (1 + Ease.OutBounce(2 * x - 1)) / 2
   }
+
+  static funcs = {
+    'none': Ease.None,
+    'inSine': Ease.InSine,
+    'outSine': Ease.OutSine,
+    'inOutSine': Ease.InOutSine,
+    'inQuad': Ease.InQuad,
+    'outQuad': Ease.OutQuad,
+    'inOutQuad': Ease.InOutQuad,
+    'inCubic': Ease.InCubic,
+    'outCubic': Ease.OutCubic,
+    'inOutCubic': Ease.InOutCubic,
+    'inQuart': Ease.InQuart,
+    'outQuart': Ease.OutQuart,
+    'inOutQuart': Ease.InOutQuart,
+    'inQuint': Ease.InQuint,
+    'outQuint': Ease.OutQuint,
+    'inOutQuint': Ease.InOutQuint,
+    'inExpo': Ease.InExpo,
+    'outExpo': Ease.OutExpo,
+    'inOutExpo': Ease.InOutExpo,
+    'inCirc': Ease.InCirc,
+    'outCirc': Ease.OutCirc,
+    'inOutCirc': Ease.InOutCirc,
+    'inBack': Ease.InBack,
+    'outBack': Ease.OutBack,
+    'inOutBack': Ease.InOutBack,
+    'inElastic': Ease.InElastic,
+    'outElastic': Ease.OutElastic,
+    'inOutElastic': Ease.InOutElastic,
+    'inBounce': Ease.InBounce,
+    'outBounce': Ease.OutBounce,
+    'inOutBounce': Ease.InOutBounce,
+  }
 }

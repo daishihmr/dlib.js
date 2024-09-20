@@ -102,7 +102,7 @@ export class Game extends EventDispatcher {
       if (this.currentScene) {
         this.currentScene.update(params)
       }
-      this.tweens.forEach(t => t.update(params))
+      Array.from(this.tweens).forEach(t => t.update(params))
 
       this.fire('update', params)
       requestAnimationFrame(() => this._tick())

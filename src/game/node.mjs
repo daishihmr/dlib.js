@@ -15,13 +15,6 @@ export class Node extends EventDispatcher {
   }
   update (params) {}
 
-  addChild (child) {
-    this.transform.addChild(child.transform)
-  }
-  removeChild (child) {
-    this.transform.removeChild(child.transform)
-  }
-
   hit (globalPoint) {
     if (!this.bounds) return false
 
