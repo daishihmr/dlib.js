@@ -1,7 +1,9 @@
 import { vec2, mat2d } from 'gl-matrix'
 
 export class Transform {
-  constructor () {
+  constructor (gameObject) {
+    this.gameObject = gameObject
+
     this._position = vec2.fromValues(0, 0)
     this._rotation = 0
     this._scale = vec2.fromValues(1, 1)
@@ -61,10 +63,7 @@ export class Transform {
   addChild (child) {
     this.children.push(child)
     child.parent = this
-  }
-  addChildTo (parent) {
-    parent.addChild(this)
-    return this
+    child.zOrder = this.zOrder + 1
   }
 
   removeChild (child) {
@@ -74,12 +73,6 @@ export class Transform {
     }
     this.children(index, 1)
     child.parent = null
-  }
-  removeChildFrom (parent) {
-    if (parent) {
-      parent.removeChild(this)
-    }
-    return this
   }
 
   get x () {

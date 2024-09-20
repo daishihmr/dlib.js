@@ -7,6 +7,10 @@ export class Game extends EventDispatcher {
   constructor (canvas) {
     super()
 
+    if (!canvas) {
+      canvas = document.createElement('canvas')
+      document.body.appendChild(canvas)
+    }
     this.canvas = canvas
     this.context = canvas.getContext('2d')
     this.background = 'transparent'

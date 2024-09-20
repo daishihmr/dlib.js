@@ -47,7 +47,7 @@ export class EventDispatcher {
 
   fire (eventType, params) {
     if (this.handlers[eventType]) {
-      this.handlers[eventType].forEach(_ => _(params))
+      Array.from(this.handlers[eventType]).forEach(_ => _(params))
     }
 
     return this

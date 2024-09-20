@@ -5,14 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-  <canvas id="canvas" width="500" height="500"></canvas>
   <script src="../gl-matrix.js"></script>
   <script src="../../dist/dlib.js"></script>
   <script>
-    const canvas = document.querySelector('#canvas')
-    const game = new dlib.Game(canvas)
+    const game = new dlib.Game()
+    game.width = 500
+    game.height = 500
     game.background = '#eee'
     game.start()
+    game.fitWindow()
 
     const scene = new dlib.Scene()
     game.switchScene(scene)

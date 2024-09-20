@@ -5,36 +5,49 @@ export class Scene extends EventDispatcher {
   constructor () {
     super()
     this.gameObjects = []
+    this.gameObjectMap = {}
     this.rootMatrix = mat2d.create()
   }
 
   update (params) {
     this.fire('update', params)
 
-    Array.from(this.gameObjects).forEach((node) => {
-      if (node.active) {
-        node._update(params)
+    Array.from(this.gameObjects).forEach((obj) => {
+      if (obj.active) {
+        obj._update(params)
 
-        // rootに直接配置されているノードのみtransformを再計算
-        if (!node.transform.parent) {
-          node.transform.update(this.rootMatrix)
+        // rootに直接配置されているオブジェクトのみtransformを再計算
+        if (!obj.transform.parent) {
+          obj.transform.update(this.rootMatrix)
         }
-
-        if (node.visible && node._draw) {
-          node._draw(params)
-        }
+      }
+    })
+    Array.from(this.gameObjects).sort((lhs, rhs) => lhs.zOrder - rhs.zOrder).forEach((obj) => {
+      if (obj.visible && obj._draw) {
+        obj._draw(params)
       }
     })
   }
 
-  add (node) {
-    this.gameObjects.push(node)
+  add (gameObject, name) {
+    this.gameObjects.push(gameObject)
+    if (name) {
+      gameObject.name = name
+      this.gameObjectMap[name] = gameObject
+    }
   }
 
-  remove (node) {
-    const index = this.gameObjects.indexOf(node)
+  remove (gameObject) {
+    const index = this.gameObjects.indexOf(gameObject)
     if (index >= 0) {
       this.gameObjects.splice(index, 1)
     }
+    if (gameObject.name) {
+      this.gameObjectMap[gameObject.name] = null
+    }
+  }
+
+  get (name) {
+    return this.gameObjectMap[name]
   }
 }

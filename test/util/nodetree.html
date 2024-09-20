@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <canvas id="canvas" width="600" height="600"></canvas>
+  <script src="../gl-matrix.js"></script>
+  <script src="../../dist/dlib.js"></script>
+  <script>
+    window.onload = async () => {
+      const assetManager = new dlib.AssetManager()
+      await assetManager.load({
+        atlas: {
+          'fighter': './fighter.json'
+        }
+      })
+
+      const canvas = document.querySelector('#canvas')
+      const game = new dlib.Game(canvas)
+      game.background = '#eee'
+      game.start()
+
+      const scene = new dlib.Scene()
+      game.switchScene(scene)
+
+      const fighter = assetManager.get('atlas', 'fighter')
+
+      dlib.NodeTree.build({
+        name: 'obj0',
+        className: 'Sprite',
+        arguments: [{ atlas: fighter }],
+        properties: {
+          frame: 'fighterA4.png',
+          x: 300,
+          y: 300,
+          scaleX: 1,
+          scaleY: 1,
+        },
+        children: [{
+          name: 'obj1',
+          className: 'Sprite',
+          arguments: [{ atlas: fighter }],
+          properties: {
+            frame: 'fighterA1.png',
+            x: 100,
+            y: 0,
+            scaleX: 1,
+            scaleY: 1,
+          },
+        }, {
+          name: 'obj2',
+          className: 'Sprite',
+          arguments: [{ atlas: fighter }],
+          properties: {
+            frame: 'fighterA2.png',
+            x: 70,
+            y: 70,
+            scaleX: 1,
+            scaleY: 1,
+          },
+        }, ]
+      }, scene)
+
+      const obj0 = scene.get('obj0')
+      obj0.on('update', ({ deltaTime }) => {
+        obj0.rotation += deltaTime * 0.001
+      })
+      const obj1 = scene.get('obj1')
+      obj1.on('update', ({ deltaTime }) => {
+        obj1.rotation += deltaTime * 0.001
+      })
+    }
+  </script>
+</body>
+</html>

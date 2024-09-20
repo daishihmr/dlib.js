@@ -6,6 +6,7 @@ export class DrawableNode extends Node {
     this.visible = true
     this.globalAlpha = 1
     this.globalCompositeOperation = 'source-over'
+    this.zOrder = 0
   }
 
   _draw (params) {

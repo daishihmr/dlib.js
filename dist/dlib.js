@@ -50,7 +50,7 @@ var dlib = (function (exports, glMatrix) {
 
     fire (eventType, params) {
       if (this.handlers[eventType]) {
-        this.handlers[eventType].forEach(_ => _(params));
+        Array.from(this.handlers[eventType]).forEach(_ => _(params));
       }
 
       return this
@@ -58,7 +58,9 @@ var dlib = (function (exports, glMatrix) {
   }
 
   class Transform {
-    constructor () {
+    constructor (gameObject) {
+      this.gameObject = gameObject;
+
       this._position = glMatrix.vec2.fromValues(0, 0);
       this._rotation = 0;
       this._scale = glMatrix.vec2.fromValues(1, 1);
@@ -118,10 +120,7 @@ var dlib = (function (exports, glMatrix) {
     addChild (child) {
       this.children.push(child);
       child.parent = this;
-    }
-    addChildTo (parent) {
-      parent.addChild(this);
-      return this
+      child.zOrder = this.zOrder + 1;
     }
 
     removeChild (child) {
@@ -131,12 +130,6 @@ var dlib = (function (exports, glMatrix) {
       }
       this.children(index, 1);
       child.parent = null;
-    }
-    removeChildFrom (parent) {
-      if (parent) {
-        parent.removeChild(this);
-      }
-      return this
     }
 
     get x () {
@@ -181,7 +174,7 @@ var dlib = (function (exports, glMatrix) {
     constructor () {
       super();
       this.active = true;
-      this.transform = new Transform();
+      this.transform = new Transform(this);
       this.bounds = null;
     }
 
@@ -227,6 +220,19 @@ var dlib = (function (exports, glMatrix) {
     }
     set scaleY (value) {
       this.transform.scaleY = value;
+    }
+
+    addChild (child) {
+      this.transform.addChild(child);
+    }
+    removeChild (child) {
+      this.transform.removeChild(child);
+    }
+    get parent () {
+      return this.transform.parent?.gameObject
+    }
+    get children () {
+      return this.transform.children.map(_ => _.gameObject)
     }
 
   }
@@ -729,6 +735,10 @@ var dlib = (function (exports, glMatrix) {
     constructor (canvas) {
       super();
 
+      if (!canvas) {
+        canvas = document.createElement('canvas');
+        document.body.appendChild(canvas);
+      }
       this.canvas = canvas;
       this.context = canvas.getContext('2d');
       this.background = 'transparent';
@@ -843,37 +853,50 @@ var dlib = (function (exports, glMatrix) {
     constructor () {
       super();
       this.gameObjects = [];
+      this.gameObjectMap = {};
       this.rootMatrix = glMatrix.mat2d.create();
     }
 
     update (params) {
       this.fire('update', params);
 
-      Array.from(this.gameObjects).forEach((node) => {
-        if (node.active) {
-          node._update(params);
+      Array.from(this.gameObjects).forEach((obj) => {
+        if (obj.active) {
+          obj._update(params);
 
-          // rootに直接配置されているノードのみtransformを再計算
-          if (!node.transform.parent) {
-            node.transform.update(this.rootMatrix);
+          // rootに直接配置されているオブジェクトのみtransformを再計算
+          if (!obj.transform.parent) {
+            obj.transform.update(this.rootMatrix);
           }
-
-          if (node.visible && node._draw) {
-            node._draw(params);
-          }
+        }
+      });
+      Array.from(this.gameObjects).sort((lhs, rhs) => lhs.zOrder - rhs.zOrder).forEach((obj) => {
+        if (obj.visible && obj._draw) {
+          obj._draw(params);
         }
       });
     }
 
-    add (node) {
-      this.gameObjects.push(node);
+    add (gameObject, name) {
+      this.gameObjects.push(gameObject);
+      if (name) {
+        gameObject.name = name;
+        this.gameObjectMap[name] = gameObject;
+      }
     }
 
-    remove (node) {
-      const index = this.gameObjects.indexOf(node);
+    remove (gameObject) {
+      const index = this.gameObjects.indexOf(gameObject);
       if (index >= 0) {
         this.gameObjects.splice(index, 1);
       }
+      if (gameObject.name) {
+        this.gameObjectMap[gameObject.name] = null;
+      }
+    }
+
+    get (name) {
+      return this.gameObjectMap[name]
     }
   }
 
@@ -883,6 +906,7 @@ var dlib = (function (exports, glMatrix) {
       this.visible = true;
       this.globalAlpha = 1;
       this.globalCompositeOperation = 'source-over';
+      this.zOrder = 0;
     }
 
     _draw (params) {
@@ -1192,6 +1216,25 @@ var dlib = (function (exports, glMatrix) {
 
   }
 
+  class NodeTree {
+    static build (nodeSpec, scene) {
+      const obj = new window.dlib[nodeSpec.className](...(nodeSpec.arguments || []));
+      if (nodeSpec.properties) {
+        Object.assign(obj, nodeSpec.properties);
+      }
+      if (scene) {
+        scene.add(obj, nodeSpec.name);
+      }
+      if (nodeSpec.children) {
+        nodeSpec.children.forEach((childSpec) => {
+          const child = NodeTree.build(childSpec, scene);
+          obj.transform.addChild(child.transform);
+        });
+      }
+      return obj
+    }
+  }
+
   exports.Anim = Anim;
   exports.AssetLoaders = AssetLoaders;
   exports.AssetManager = AssetManager;
@@ -1206,6 +1249,7 @@ var dlib = (function (exports, glMatrix) {
   exports.Keyboard = Keyboard;
   exports.Mouse = Mouse;
   exports.Node = Node;
+  exports.NodeTree = NodeTree;
   exports.Scene = Scene;
   exports.Sound = Sound;
   exports.Sprite = Sprite;

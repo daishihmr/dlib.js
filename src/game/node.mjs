@@ -5,7 +5,7 @@ export class Node extends EventDispatcher {
   constructor () {
     super()
     this.active = true
-    this.transform = new Transform()
+    this.transform = new Transform(this)
     this.bounds = null
   }
 
@@ -51,6 +51,19 @@ export class Node extends EventDispatcher {
   }
   set scaleY (value) {
     this.transform.scaleY = value
+  }
+
+  addChild (child) {
+    this.transform.addChild(child)
+  }
+  removeChild (child) {
+    this.transform.removeChild(child)
+  }
+  get parent () {
+    return this.transform.parent?.gameObject
+  }
+  get children () {
+    return this.transform.children.map(_ => _.gameObject)
   }
 
 }
