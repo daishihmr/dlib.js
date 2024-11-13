@@ -7,10 +7,10 @@
 <body>
   <canvas id="canvas" width="600" height="600"></canvas>
   <script src="../gl-matrix.js"></script>
-  <script src="../../dist/dlib.js"></script>
+  <script src="../../dist/dailib.js"></script>
   <script>
     window.onload = async () => {
-      const assetManager = new dlib.AssetManager()
+      const assetManager = new dailib.AssetManager()
       await assetManager.load({
         atlas: {
           'testatlas': './testatlas.json'
@@ -18,16 +18,16 @@
       })
 
       const canvas = document.querySelector('#canvas')
-      const game = new dlib.Game(canvas)
+      const game = new dailib.Game(canvas)
       game.background = '#eee'
       game.start()
 
-      const scene = new dlib.Scene()
+      const scene = new dailib.Scene()
       game.switchScene(scene)
 
       const atlas = assetManager.get('atlas', 'testatlas')
 
-      const sprite2 = new dlib.Sprite({ atlas })
+      const sprite2 = new dailib.Sprite({ atlas })
       sprite2.frame = 't4.png'
       sprite2.x = 600
       sprite2.y = 300
@@ -43,7 +43,7 @@
         )
       })
 
-      const sprite0 = new dlib.Sprite({ atlas })
+      const sprite0 = new dailib.Sprite({ atlas })
       sprite0.frame = 't5.png'
       sprite0.x = 300
       sprite0.y = 600

@@ -1,8 +1,8 @@
 {
-  "name": "dlib.js",
+  "name": "dailib.js",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/dlib.js",
+  "main": "dist/dailib.js",
   "scripts": {
     "build": "rollup -c",
     "watch": "rollup -c -w",

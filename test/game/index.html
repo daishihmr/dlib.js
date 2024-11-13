@@ -7,11 +7,11 @@
 <body>
   <canvas id="canvas" width="500" height="500"></canvas>
   <script src="../gl-matrix.js"></script>
-  <script src="../../dist/dlib.js"></script>
+  <script src="../../dist/dailib.js"></script>
   <script>
     const canvas = document.querySelector('#canvas')
-    const game = new dlib.Game(canvas)
-    const scene = new dlib.Node()
+    const game = new dailib.Game(canvas)
+    const scene = new dailib.Node()
     scene.on('update', ({ deltaTime }) => {
       console.log(`tick ${ deltaTime }`)
     })

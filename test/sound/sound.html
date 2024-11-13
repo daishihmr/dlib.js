@@ -7,10 +7,10 @@
 <body>
   <button id="playbutton">play</button>
   <script src="../gl-matrix.js"></script>
-  <script src="../../dist/dlib.js"></script>
+  <script src="../../dist/dailib.js"></script>
   <script>
     window.onload = async () => {
-      const assetManager = new dlib.AssetManager()
+      const assetManager = new dailib.AssetManager()
       await assetManager.load({
         sound: {
           'test': './sample.mp3'

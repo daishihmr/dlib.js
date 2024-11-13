@@ -46,19 +46,23 @@ export class Sprite extends DrawableNode {
   draw ({ context }) {
     if (this.image) {
       if (this.rotated) {
+        context.save()
         context.rotate(-90 * Math.PI / 180)
-        context.drawImage(
-          this.image,
-          this.sx,
-          this.sy,
-          this.sh,
-          this.sw,
-          this.height * -this.origin[1] + this.dy,
-          this.width * -this.origin[0] + this.dx,
-          this.dh,
-          this.dw,
-        )
-        context.rotate(90 * Math.PI / 180)
+        try {
+          context.drawImage(
+            this.image,
+            this.sx,
+            this.sy,
+            this.sh,
+            this.sw,
+            this.height * -this.origin[1] + this.dy,
+            this.width * -this.origin[0] + this.dx,
+            this.dh,
+            this.dw,
+          )
+        } finally {
+          context.restore()
+        }
       } else {
         context.drawImage(
           this.image,

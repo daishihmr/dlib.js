@@ -1,8 +1,8 @@
 export default {
-	input: 'src/dlib.mjs',
+	input: 'src/dailib.mjs',
 	output: {
-    name: 'dlib',
-		file: 'dist/dlib.js',
+    name: 'dailib',
+		file: 'dist/dailib.js',
 		format: 'iife',
     indent: '  ',
     sourcemap: true,

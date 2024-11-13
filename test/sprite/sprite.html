@@ -7,10 +7,10 @@
 <body>
   <canvas id="canvas" width="500" height="500"></canvas>
   <script src="../gl-matrix.js"></script>
-  <script src="../../dist/dlib.js"></script>
+  <script src="../../dist/dailib.js"></script>
   <script>
     window.onload = async () => {
-      const assetManager = new dlib.AssetManager()
+      const assetManager = new dailib.AssetManager()
       await assetManager.load({
         image: {
           'tex': './sample-file.256x256.png'
@@ -18,13 +18,13 @@
       })
 
       const canvas = document.querySelector('#canvas')
-      const game = new dlib.Game(canvas)
+      const game = new dailib.Game(canvas)
       game.background = '#eee'
-      const scene = new dlib.Scene()
+      const scene = new dailib.Scene()
       game.switchScene(scene)
       game.start()
 
-      const sprite = new dlib.Sprite({ image: assetManager.get('image', 'tex') })
+      const sprite = new dailib.Sprite({ image: assetManager.get('image', 'tex') })
       sprite.x = 250
       sprite.y = 250
       scene.add(sprite)

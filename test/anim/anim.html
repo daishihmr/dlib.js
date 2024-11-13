@@ -6,19 +6,19 @@
 </head>
 <body>
   <script src="../gl-matrix.js"></script>
-  <script src="../../dist/dlib.js"></script>
+  <script src="../../dist/dailib.js"></script>
   <script>
-    const game = new dlib.Game()
+    const game = new dailib.Game()
     game.width = 500
     game.height = 500
     game.background = '#eee'
     game.start()
     game.fitWindow()
 
-    const scene = new dlib.Scene()
+    const scene = new dailib.Scene()
     game.switchScene(scene)
 
-    const box = new dlib.DrawableNode()
+    const box = new dailib.DrawableNode()
     scene.add(box)
     box.x = 100
     box.y = 250

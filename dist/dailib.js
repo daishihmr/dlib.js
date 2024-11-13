@@ -1,4 +1,4 @@
-var dlib = (function (exports, glMatrix) {
+var dailib = (function (exports, glMatrix) {
   'use strict';
 
   class EventDispatcher {
@@ -1060,7 +1060,7 @@ var dlib = (function (exports, glMatrix) {
           return Object.keys(spec[assetType]).map((assetName) => {
             const url = spec[assetType][assetName];
             if (!AssetLoaders.loaders[assetType]) {
-              reject('unknown assetType');
+              reject(new Error(`unknown assetType ${ assetType }`));
               return
             }
             const task = AssetLoaders.loaders[assetType]({ assetType, assetName, url })
@@ -1165,19 +1165,23 @@ var dlib = (function (exports, glMatrix) {
     draw ({ context }) {
       if (this.image) {
         if (this.rotated) {
+          context.save();
           context.rotate(-90 * Math.PI / 180);
-          context.drawImage(
-            this.image,
-            this.sx,
-            this.sy,
-            this.sh,
-            this.sw,
-            this.height * -this.origin[1] + this.dy,
-            this.width * -this.origin[0] + this.dx,
-            this.dh,
-            this.dw,
-          );
-          context.rotate(90 * Math.PI / 180);
+          try {
+            context.drawImage(
+              this.image,
+              this.sx,
+              this.sy,
+              this.sh,
+              this.sw,
+              this.height * -this.origin[1] + this.dy,
+              this.width * -this.origin[0] + this.dx,
+              this.dh,
+              this.dw,
+            );
+          } finally {
+            context.restore();
+          }
         } else {
           context.drawImage(
             this.image,
@@ -1216,9 +1220,9 @@ var dlib = (function (exports, glMatrix) {
 
   }
 
-  class NodeTree {
+  class SceneTree {
     static build (nodeSpec, scene) {
-      const obj = new window.dlib[nodeSpec.className](...(nodeSpec.arguments || []));
+      const obj = new window.dailib[nodeSpec.className](...(nodeSpec.arguments || []));
       if (nodeSpec.properties) {
         Object.assign(obj, nodeSpec.properties);
       }
@@ -1227,7 +1231,7 @@ var dlib = (function (exports, glMatrix) {
       }
       if (nodeSpec.children) {
         nodeSpec.children.forEach((childSpec) => {
-          const child = NodeTree.build(childSpec, scene);
+          const child = SceneTree.build(childSpec, scene);
           obj.transform.addChild(child.transform);
         });
       }
@@ -1249,8 +1253,8 @@ var dlib = (function (exports, glMatrix) {
   exports.Keyboard = Keyboard;
   exports.Mouse = Mouse;
   exports.Node = Node;
-  exports.NodeTree = NodeTree;
   exports.Scene = Scene;
+  exports.SceneTree = SceneTree;
   exports.Sound = Sound;
   exports.Sprite = Sprite;
   exports.Transform = Transform;
@@ -1259,4 +1263,4 @@ var dlib = (function (exports, glMatrix) {
   return exports;
 
 })({}, glMatrix);
-//# sourceMappingURL=dlib.js.map
+//# sourceMappingURL=dailib.js.map

@@ -14,7 +14,7 @@ export class AssetManager {
         return Object.keys(spec[assetType]).map((assetName) => {
           const url = spec[assetType][assetName]
           if (!AssetLoaders.loaders[assetType]) {
-            reject('unknown assetType')
+            reject(new Error(`unknown assetType ${ assetType }`))
             return
           }
           const task = AssetLoaders.loaders[assetType]({ assetType, assetName, url })

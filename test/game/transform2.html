@@ -7,17 +7,17 @@
 <body>
   <canvas id="canvas" width="500" height="500"></canvas>
   <script src="../gl-matrix.js"></script>
-  <script src="../../dist/dlib.js"></script>
+  <script src="../../dist/dailib.js"></script>
   <script>
     const canvas = document.querySelector('#canvas')
-    const game = new dlib.Game(canvas)
+    const game = new dailib.Game(canvas)
     game.background = '#eee'
     game.start()
 
-    const scene = new dlib.Scene()
+    const scene = new dailib.Scene()
     game.switchScene(scene)
 
-    const box = new dlib.DrawableNode()
+    const box = new dailib.DrawableNode()
     scene.add(box)
     box.x = 250
     box.y = 250

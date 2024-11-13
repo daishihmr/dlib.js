@@ -6,9 +6,9 @@
 </head>
 <body>
   <script src="../gl-matrix.js"></script>
-  <script src="../../dist/dlib.js"></script>
+  <script src="../../dist/dailib.js"></script>
   <script>
-    dlib.AssetLoaders.loaders.xml = async ({ url }) => {
+    dailib.AssetLoaders.loaders.xml = async ({ url }) => {
       const res = await fetch(url)
       const str = await res.text()
       const parser = new DOMParser()
@@ -17,7 +17,7 @@
     }
 
     window.onload = async () => {
-      const assetManager = new dlib.AssetManager()
+      const assetManager = new dailib.AssetManager()
       try {
         await assetManager.load({
           image: {

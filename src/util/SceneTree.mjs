@@ -1,6 +1,6 @@
-export class NodeTree {
+export class SceneTree {
   static build (nodeSpec, scene) {
-    const obj = new window.dlib[nodeSpec.className](...(nodeSpec.arguments || []))
+    const obj = new window.dailib[nodeSpec.className](...(nodeSpec.arguments || []))
     if (nodeSpec.properties) {
       Object.assign(obj, nodeSpec.properties)
     }
@@ -9,7 +9,7 @@ export class NodeTree {
     }
     if (nodeSpec.children) {
       nodeSpec.children.forEach((childSpec) => {
-        const child = NodeTree.build(childSpec, scene)
+        const child = SceneTree.build(childSpec, scene)
         obj.transform.addChild(child.transform)
       })
     }
